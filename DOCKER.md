@@ -9,9 +9,9 @@
 ## Préparer la configuration
 
 1. Si `server/.env` n’existe pas, copiez `.env.example` vers `server/.env`. Ne remplacez pas un fichier déjà configuré.
-2. Dans `server/.env`, renseignez les vrais identifiants de la base PostgreSQL qui contient vos données (ne laissez pas les valeurs `your_*` de l’exemple) et remplacez `JWT_SECRET` par une longue valeur aléatoire. Ne publiez jamais ce fichier. Si ce fichier a été remplacé par le modèle, restaurez les identifiants de votre PostgreSQL existant.
-3. Facultatif : copiez `.env.compose.example` vers `.env` à la racine. Pour PostgreSQL sur la même machine que Docker, gardez `DOCKER_PGHOST=host.docker.internal`. Pour une base hébergée ailleurs, remplacez cette valeur par son nom DNS ou son adresse IP. Si la base est un service du même réseau Compose, utilisez son nom de service.
-4. Réglez `COOKIE_SECURE=true` dans `server/.env` lorsque le site est servi en HTTPS. Gardez `false` pour un accès HTTP local.
+2. Dans `server/.env`, renseignez `DATABASE_URL` avec l’URL fournie par Neon (incluant `sslmode=require`) ou configurez les variables `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` et `PGPORT` pour PostgreSQL local. Si `DATABASE_URL` est renseignée, elle est prioritaire sur les variables `PG*`. Remplacez aussi `JWT_SECRET` par une longue valeur aléatoire. Ne publiez jamais ce fichier.
+3. Configurez `CLIENT_PORT` dans le fichier `.env` Compose à la racine si le port frontend doit changer. Compose transmet directement `DATABASE_URL` au conteneur serveur ; aucune surcharge d’hôte n’est nécessaire pour Neon. L’URL en production doit contenir `sslmode=require` (ou `verify-full`).
+4. Pour un déploiement HTTPS, ajoutez `COOKIE_SECURE=true` au fichier `.env` Compose à la racine. Gardez `false` pour un accès HTTP local.
 5. Placez les fichiers téléversés dans `server/Uploads`. Ce dossier est monté dans le conteneur et n’est pas inclus dans Git.
 
 ## Lancer et contrôler
@@ -37,7 +37,7 @@ Cette commande conserve les données PostgreSQL externes ainsi que `server/Uploa
 
 ## Déployer sur un autre serveur
 
-Copiez le dépôt et les fichiers téléversés sur le serveur, créez `server/.env` avec les secrets et paramètres DB de cet environnement, puis configurez `DOCKER_PGHOST` et `CLIENT_PORT` dans le fichier `.env` Compose à la racine. Réglez `COOKIE_SECURE` dans `server/.env` selon le proxy HTTPS. Configurez le pare-feu ou le proxy TLS pour exposer le port frontend choisi. Les appels API et les images utilisent le même domaine via `/backend`, donc aucun nom d’hôte de développement n’est compilé dans le client.
+Copiez le dépôt et les fichiers téléversés sur le serveur, créez `server/.env` avec `DATABASE_URL`, un `JWT_SECRET` aléatoire d’au moins 32 caractères et les autres paramètres de cet environnement. Dans le fichier `.env` Compose à la racine, configurez `CLIENT_PORT` et `COOKIE_SECURE=true` quand le site est servi en HTTPS. Configurez un proxy TLS et exposez uniquement le frontend derrière ce proxy. Les appels API et les images utilisent le même domaine via `/backend`, donc aucun nom d’hôte de développement n’est compilé dans le client.
 
 L’application ne crée ni ne migre le schéma PostgreSQL automatiquement. Faites une sauvegarde de la base avant toute migration et préparez le schéma attendu séparément.
 
