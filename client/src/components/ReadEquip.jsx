@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import EquipementFinder from '../apis/EquipementFinder';
+import { mediaUrl } from '../utils/mediaUrl';
 
 const ReadEquip = () => {
   const { id } = useParams();
@@ -44,7 +45,7 @@ const ReadEquip = () => {
                     <p><strong>Secteur:</strong> {equipement.secteur_name}</p>
                     <p><strong>Image:</strong> {equipement.image}</p>
                     {equipement.image && (
-                      <img src={`http://localhost:3001/${equipement.image}`} alt={equipement.name} />
+                      <img src={mediaUrl(equipement.image)} alt={equipement.name} />
                     )}
                   </div>
                   <div className="card-footer">

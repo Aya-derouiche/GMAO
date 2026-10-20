@@ -35,7 +35,7 @@ const AddPreventive2 = ({ hideAddEquipement }) => {
     const [planified_date, setPlanified_date] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:3001')
+        axios.get('/backend')
             .then(res => {
                 if (res.data.status === "Success") {
                     setAuth(true);
@@ -81,7 +81,7 @@ const AddPreventive2 = ({ hideAddEquipement }) => {
                     const selectedEquipment = equipments.find(equipment => equipment.id === equipement_id);
                     if (selectedEquipment) {
                         // If the selected equipment exists, fetch composants based on its name
-                        const response = await axios.get(`http://localhost:3001/api/v1/composant_equip/${selectedEquipment.name}`);
+                        const response = await axios.get(`/backend/api/v1/composant_equip/${selectedEquipment.name}`);
                         setComposants(response.data.data.composants);
                     }
                 }
@@ -100,7 +100,7 @@ const AddPreventive2 = ({ hideAddEquipement }) => {
     useEffect(() => {
         const fetchLastReclamationId = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/v1/reclamation2');
+                const response = await axios.get('/backend/api/v1/reclamation2');
                 if (response.data.status === "success") {
                     const lastId = response.data.data.lastId;
                     setRef(`REF${lastId + 1}`);

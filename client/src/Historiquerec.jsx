@@ -16,7 +16,7 @@ function Historiquerec() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/v1/historiquerec');
+                const response = await axios.get('/backend/api/v1/historiquerec');
                 setReclamations(response.data.data.reclamations);
             } catch (error) {
                 console.error('Error retrieving data:', error);

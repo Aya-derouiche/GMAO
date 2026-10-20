@@ -23,11 +23,11 @@ function Maintenanceproduittech() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001', { withCredentials: true });
+                const response = await axios.get('/backend', { withCredentials: true });
                 const userRole = response.data.role;
 
                 if (userRole === 'technician') {
-                    const techResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+                    const techResponse = await axios.get('/backend/api/v1/technicien/techid');
                     const technicians = techResponse.data.data.technicien;
 
                     if (technicians.length > 0) {
@@ -36,7 +36,7 @@ function Maintenanceproduittech() {
                         if (connectedTechnician) {
                             const technicienId = connectedTechnician.id;
                             setTechnicienId(technicienId);
-                            const notifResponse = await axios.get(`http://localhost:3001/api/v1/notifprevuniquetech/${technicienId}`);
+                            const notifResponse = await axios.get(`/backend/api/v1/notifprevuniquetech/${technicienId}`);
                             const notifprevuniqueData = notifResponse.data.data.notifprevunique;
                             setNotifprevunique(notifprevuniqueData);
                             document.getElementById('technicien-id').value = technicienId; // Mettre à jour l'élément caché
@@ -53,7 +53,7 @@ function Maintenanceproduittech() {
     }, []);
 
     const handleRowClick = (id) => {
-        window.location.href = `http://localhost:5173/equipements/${id}/updateequipproduit`;
+        window.location.href = `/equipements/${id}/updateequipproduit`;
     };
 
     const handleSort = (key) => {
@@ -135,7 +135,7 @@ function Maintenanceproduittech() {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                                        <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                                         <li className="breadcrumb-item active">maintenance préventive</li>
                                     </ol>
                                 </div>

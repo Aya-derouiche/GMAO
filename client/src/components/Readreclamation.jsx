@@ -5,6 +5,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import "./ReadReclamation.css";
 import { toast } from "react-toastify";
 import axios from 'axios';
+import { mediaUrl } from '../utils/mediaUrl';
 
 const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -37,7 +38,7 @@ const ReadReclamation = () => {
     });
      
     useEffect(() => {
-        axios.get('http://localhost:3001', { withCredentials: true })
+        axios.get('/backend', { withCredentials: true })
           .then(res => {
             if (res.data.status === "Success") {
               setAuth(true);
@@ -228,7 +229,7 @@ info-box-number text-center text-muted mb-0">{reclamation.state}</span>
 <div className="col-12 col-md-12 col-lg-4 order-1 order-md-2">
 <div className="user-block">
 <h4 className="text-secondary">
-<img className="img-bordered-lg" src={`http://localhost:3001/${reclamation.equipement_image}`} alt="img" style={{width: '80px', height: '80px'}} />
+<img className="img-bordered-lg" src={mediaUrl(reclamation.equipement_image)} alt="img" style={{width: '80px', height: '80px'}} />
 &nbsp; Machine: &nbsp;<br></br> &nbsp;&nbsp;{equipementName}
 </h4> 
 

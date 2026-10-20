@@ -19,7 +19,7 @@ function Equiplist2() {
                 </div>
                 <div className="col-sm-6">
                   <ol className="breadcrumb float-sm-right">
-                    <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                    <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                     <li className="breadcrumb-item active">maintenance préventive</li>
                   </ol>
                 </div>

@@ -89,7 +89,7 @@ function Updatecompproduit (){
       }
     };
     useEffect(() => {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           setAuth(true);
@@ -108,7 +108,7 @@ function Updatecompproduit (){
   useEffect(() => {
     const fetchData = async () => {
         try {
-            const composantResponse = await axios.get(`http://localhost:3001/api/v1/composant/${id}`);
+            const composantResponse = await axios.get(`/backend/api/v1/composant/${id}`);
             const composantData = composantResponse.data.data.composant;
          
             setNameEquip(composantData.name_equip);
@@ -143,10 +143,10 @@ function Updatecompproduit (){
       try {
        
         if (type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -160,7 +160,7 @@ function Updatecompproduit (){
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const techniciensResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+        const techniciensResponse = await axios.get('/backend/api/v1/technicien/techid');
         setTechniciens(techniciensResponse.data.data.technicien);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -173,7 +173,7 @@ function Updatecompproduit (){
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const notifprevsResponse = await axios.get('http://localhost:3001/api/v1/notifprevcomp');
+        const notifprevsResponse = await axios.get('/backend/api/v1/notifprevcomp');
         setNotifprevs(notifprevsResponse.data.data.notifprevcomp);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -222,7 +222,7 @@ function Updatecompproduit (){
         formData.append('description', description);
         if (fichier) formData.append('file', fichier);
 
-        const response = await axios.put(`http://localhost:3001/api/v1/composant/${id}`, formData, {
+        const response = await axios.put(`/backend/api/v1/composant/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -245,8 +245,8 @@ const handleDocumentChange = (e) => {
     setShowTraiterButton(true);
     try {
       const url = type === 'Produit'
-        ? `http://localhost:3001/api/v1/notifprevuniquecomp/${id}`
-        : `http://localhost:3001/api/v1/maintenance_prevcomp/${id}`;
+        ? `/backend/api/v1/notifprevuniquecomp/${id}`
+        : `/backend/api/v1/maintenance_prevcomp/${id}`;
 
       await axios.put(url, {
         technicien_id: selectedTechnician,
@@ -276,12 +276,12 @@ const handleDocumentChange = (e) => {
     setShowStates(true);
     setShowTraitAndAffectButtons(false);
     try {
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/notifprevcompunique`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/notifprevcompunique`);
       const reclamationData = reclamationResponse.data.data.notifprevcompunique;
       const matchReclamation = reclamationData.find(notifprevcompunique => notifprevcompunique.id === id);
   
       if (matchReclamation) {
-        const statResponse = await axios.get(` http://localhost:3001/api/v1/notifprevcompuniquestate/${matchReclamation.id}`);
+        const statResponse = await axios.get(` /backend/api/v1/notifprevcompuniquestate/${matchReclamation.id}`);
         console.log(statResponse);
         const stat = statResponse.data.data.notifprevcompunique[0]; // Accessing the first object in the array
         if (stat.state === 'En cours') {
@@ -303,28 +303,28 @@ const handleDocumentChange = (e) => {
   const handleEnCoursClick = async () => {
     try {
       // Mettre à jour l'état dans la table reclamation
-      await axios.put(`http://localhost:3001/api/v1/statecomp/${id}`, {
+      await axios.put(`/backend/api/v1/statecomp/${id}`, {
         composant_id: id,
         state: 'En cours'
       });
   
       // Mettre à jour l'état dans la table notifprev si l'équipement_id est présent
-      const notifprevResponse = await axios.get(`http://localhost:3001/api/v1/notifprevcomp`);
+      const notifprevResponse = await axios.get(`/backend/api/v1/notifprevcomp`);
       const notifprevData = notifprevResponse.data.data.notifprevcomp;
       const matchNotifPrevId = notifprevData.find(notifprevcomp => notifprevcomp.id === id);
       if (matchNotifPrevId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchNotifPrevId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchNotifPrevId.id}`, {
           id: matchNotifPrevId.id,
           state: 'En cours'
         });
       }
       
       // Mettre à jour l'état dans la table maintenance_prev si l'équipement_id est présent
-      const maintenancePrevResponse = await axios.get(`http://localhost:3001/api/v1/maintenance_prevcomp`);
+      const maintenancePrevResponse = await axios.get(`/backend/api/v1/maintenance_prevcomp`);
       const maintenancePrevData = maintenancePrevResponse.data.data.maintenance_prevcomp;
       const matchMaintenancePrevId = maintenancePrevData.find(maintenancePrevcomp => maintenancePrevcomp.id === id);
       if (matchMaintenancePrevId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchMaintenancePrevId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchMaintenancePrevId.id}`, {
           id: matchMaintenancePrevId.id,
           state: 'En cours'
         });
@@ -332,11 +332,11 @@ const handleDocumentChange = (e) => {
       
   
       // Mettre à jour l'état dans la table reclamation si l'équipement_id est présent
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/reclamation`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/reclamation`);
       const reclamationData = reclamationResponse.data.data.reclamations;
       const matchReclamationId = reclamationData.find(reclamation => reclamation.composant_id === id);
       if (matchReclamationId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchReclamationId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchReclamationId.id}`, {
           composant_id: matchReclamationId.composant_id,
           state: 'En cours'
         });
@@ -374,39 +374,39 @@ if (!date_fin || !date_fin.trim()) {
       return;
     }
     try {
-      await axios.put(`http://localhost:3001/api/v1/statecomp/${id}`, {
+      await axios.put(`/backend/api/v1/statecomp/${id}`, {
         composant_id: id,
         state: 'Terminée'
       });
   
       // Mettre à jour l'état dans la table notifprev si l'équipement_id est présent
-      const notifprevResponse = await axios.get(`http://localhost:3001/api/v1/notifprevcomp`);
+      const notifprevResponse = await axios.get(`/backend/api/v1/notifprevcomp`);
       const notifprevData = notifprevResponse.data.data.notifprevcomp;
       const matchNotifPrevId = notifprevData.find(notifprevcomp => notifprevcomp.id === id);
       if (matchNotifPrevId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchNotifPrevId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchNotifPrevId.id}`, {
           id: matchNotifPrevId.id,
           state: 'Terminée'
         });
       }
   
       // Mettre à jour l'état dans la table maintenance_prev si l'équipement_id est présent
-      const maintenancePrevResponse = await axios.get(`http://localhost:3001/api/v1/maintenance_prevcomp`);
+      const maintenancePrevResponse = await axios.get(`/backend/api/v1/maintenance_prevcomp`);
       const maintenancePrevData = maintenancePrevResponse.data.data.maintenance_prevcomp;
       const matchMaintenancePrevId = maintenancePrevData.find(maintenance_prevcomp => maintenance_prevcomp.id === id);
       if (matchMaintenancePrevId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchMaintenancePrevId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchMaintenancePrevId.id}`, {
           id: matchMaintenancePrevId.id,
           state: 'Terminée'
         });
       }
   
       // Mettre à jour l'état dans la table reclamation si l'équipement_id est présent
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/reclamation`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/reclamation`);
       const reclamationData = reclamationResponse.data.data.reclamations;
       const matchReclamationId = reclamationData.find(reclamation => reclamation.composant_id === id);
       if (matchReclamationId) {
-        await axios.put(`http://localhost:3001/api/v1/statecomp/${matchReclamationId.id}`, {
+        await axios.put(`/backend/api/v1/statecomp/${matchReclamationId.id}`, {
          composant_id: matchReclamationId.composant_id,
           state: 'Terminée'
         });

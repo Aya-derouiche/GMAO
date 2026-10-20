@@ -47,7 +47,7 @@ const Addnomlogo = ({ hideAddEquipement }) => {
             formData.append("image", image);
            
 
-            const response = await axios.post("http://localhost:3001/api/v1/nomlogo", formData, {
+            const response = await axios.post("/backend/api/v1/nomlogo", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

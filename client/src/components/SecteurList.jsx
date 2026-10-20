@@ -86,7 +86,7 @@ const SecteurList = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const response = await axios.get('http://localhost:3001', { withCredentials: true });
+        const response = await axios.get('/backend', { withCredentials: true });
         setIsAdmin(response.data.role === 'admin');
         setIsTechnician(response.data.role === 'technician');
         setIsEmployee(response.data.role === 'employee');

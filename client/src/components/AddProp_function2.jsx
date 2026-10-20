@@ -58,7 +58,7 @@ const AddProp_function2 = () => {
         }
             
         try {
-            const response = await axios.post(`http://localhost:3001/api/v1/ReadEquipement/AddProp_function2/${equipment_id}`, {
+            const response = await axios.post(`/backend/api/v1/ReadEquipement/AddProp_function2/${equipment_id}`, {
                 nameinput,
                 type,
                 unit,
@@ -68,7 +68,7 @@ const AddProp_function2 = () => {
             addProp_function(response.data.data.prop_function);
             clearForm();
             setRefresh(true);
-            window.location.href = 'http://localhost:5173/prop_function';
+            window.location.href = '/prop_function';
         } catch (err) {
             console.log(err);
         }

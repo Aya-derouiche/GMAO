@@ -33,11 +33,11 @@ function Reclamation_tech() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:3001', { withCredentials: true });
+        const response = await axios.get('/backend', { withCredentials: true });
         const userRole = response.data.role;
         
         if (userRole === 'technician') {
-          const techResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+          const techResponse = await axios.get('/backend/api/v1/technicien/techid');
           const technicians = techResponse.data.data.technicien;
           
           if (technicians.length > 0) {
@@ -45,13 +45,13 @@ function Reclamation_tech() {
             
             if (connectedTechnician) {
               const technicianId = connectedTechnician.id;
-              const notificationsResponse = await axios.get(`http://localhost:3001/api/v1/notifications/${technicianId}`);
+              const notificationsResponse = await axios.get(`/backend/api/v1/notifications/${technicianId}`);
               const notificationsData = notificationsResponse.data.data.notifications;
               
               const updatedNotifications = await Promise.all(
                 notificationsData.map(async (notification) => {
                   try {
-                    const equipmentRes = await axios.get(`http://localhost:3001/api/v1/notifequip/${notification.equipement_id}`);
+                    const equipmentRes = await axios.get(`/backend/api/v1/notifequip/${notification.equipement_id}`);
                     return {
                       ...notification,
                       equipement_name: equipmentRes.data.data.equipement.name,
@@ -76,7 +76,7 @@ function Reclamation_tech() {
   }, []);
 
   const handleRowClick = (ref) => {
-    window.location.href = `http://localhost:5173/reclamation/Readreclamation/${ref}`;
+    window.location.href = `/reclamation/Readreclamation/${ref}`;
   };
 
   const handleSort = (key) => {
@@ -151,7 +151,7 @@ function Reclamation_tech() {
               </div>
               <div className="col-sm-6">
                 <ol className="breadcrumb float-sm-right">
-                  <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                  <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                   <li className="breadcrumb-item active">Maintenance Corrective</li>
                 </ol>
               </div>

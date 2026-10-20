@@ -25,7 +25,7 @@ export default class Header extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           this.setState({ auth: true, name: res.data.name, userid: res.data.userid });
@@ -46,7 +46,7 @@ export default class Header extends Component {
   loadUserRole(userRole, userName) {
     if (userRole === 'technician') {
       this.setState({ isTechnician: true });
-      axios.get('http://localhost:3001/api/v1/technicien/techid')
+      axios.get('/backend/api/v1/technicien/techid')
         .then(res => {
           const technicians = res.data.data.technicien;
           const connectedTechnician = technicians.find(technician => technician.name === userName);
@@ -70,14 +70,14 @@ export default class Header extends Component {
     }
   }
   loadTechnicianData(technicianId) {
-    axios.get(`http://localhost:3001/api/v1/notifications/${technicianId}`)
+    axios.get(`/backend/api/v1/notifications/${technicianId}`)
       .then(res => {
         const notifications = res.data.data.notifications;
         this.setState({ notifications });
   
         notifications.forEach(notification => {
           if (notification.equipement_id) {
-            axios.get(`http://localhost:3001/api/v1/notifequip/${notification.equipement_id}`)
+            axios.get(`/backend/api/v1/notifequip/${notification.equipement_id}`)
               .then(res => {
                 const equipmentName = res.data.data.equipement.name;
                 notification.equipmentName = equipmentName;
@@ -89,7 +89,7 @@ export default class Header extends Component {
           }
   
           if (notification.composant_id) {
-            axios.get(`http://localhost:3001/api/v1/notifcomp/${notification.composant_id}`)
+            axios.get(`/backend/api/v1/notifcomp/${notification.composant_id}`)
               .then(res => {
                 const composantName = res.data.data.composant.name_comp;
                 notification.composantName = composantName;
@@ -105,7 +105,7 @@ export default class Header extends Component {
         console.error('Error retrieving notifications:', error);
       });
   
-    axios.get(`http://localhost:3001/api/v1/notifprevuniquetech/${technicianId}`)
+    axios.get(`/backend/api/v1/notifprevuniquetech/${technicianId}`)
       .then(res => {
         const notifprevunique = res.data.data.notifprevunique;
         this.setState({ notifprevunique });
@@ -113,7 +113,7 @@ export default class Header extends Component {
       .catch(error => {
         console.error('Error retrieving preventive notifications:', error);
       });
-      axios.get(`http://localhost:3001/api/v1/notifprevcompuniquetech/${technicianId}`)
+      axios.get(`/backend/api/v1/notifprevcompuniquetech/${technicianId}`)
       .then(res => {
         const notifprevcompunique = res.data.data.notifprevcompunique;
         this.setState({ notifprevcompunique });
@@ -122,7 +122,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications for component:', error);
       });
   
-    axios.get(`http://localhost:3001/api/v1/maintenance_prevtech/${technicianId}`)
+    axios.get(`/backend/api/v1/maintenance_prevtech/${technicianId}`)
       .then(res => {
         const maintenance_prev = res.data.data.maintenance_prev;
         this.setState({ maintenance_prev });
@@ -131,7 +131,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications by period:', error);
       });
   
-    axios.get(`http://localhost:3001/api/v1/notifprevcompuniquetech/${technicianId}`)
+    axios.get(`/backend/api/v1/notifprevcompuniquetech/${technicianId}`)
       .then(res => {
         const notifprevcompunique = res.data.data.notifprevcompunique;
         this.setState({ notifprevcompunique });
@@ -140,7 +140,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/notifprevcompuniquetech')
+    axios.get('/backend/api/v1/notifprevcompuniquetech')
       .then(res => {
         const notifprevcompunique = res.data.data.notifprevcompunique;
         this.setState({ notifprevcompunique });
@@ -149,7 +149,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications for component:', error);
       });
   
-    axios.get(`http://localhost:3001/api/v1/maintenance_prevcomptech/${technicianId}`)
+    axios.get(`/backend/api/v1/maintenance_prevcomptech/${technicianId}`)
       .then(res => {
         const maintenance_prevcomp = res.data.data.maintenance_prevcomp;
         this.setState({ maintenance_prevcomp });
@@ -158,7 +158,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications by period:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/maintenance_prevcomp')
+    axios.get('/backend/api/v1/maintenance_prevcomp')
       .then(res => {
         const maintenance_prevcomp = res.data.data.maintenance_prevcomp;
         this.setState({ maintenance_prevcomp });
@@ -169,14 +169,14 @@ export default class Header extends Component {
   }
   
   loadAdminData() {
-    axios.get('http://localhost:3001/api/v1/notifications_admin')
+    axios.get('/backend/api/v1/notifications_admin')
       .then(res => {
         const notifications = res.data.results;
         this.setState({ notifications });
   
         notifications.forEach(notification => {
           if (notification.equipement_id) {
-            axios.get(`http://localhost:3001/api/v1/notifequip/${notification.equipement_id}`)
+            axios.get(`/backend/api/v1/notifequip/${notification.equipement_id}`)
               .then(res => {
                 const equipmentName = res.data.data.equipement.name;
                 notification.equipmentName = equipmentName;
@@ -188,7 +188,7 @@ export default class Header extends Component {
           }
   
           if (notification.composant_id) {
-            axios.get(`http://localhost:3001/api/v1/notifcomp/${notification.composant_id}`)
+            axios.get(`/backend/api/v1/notifcomp/${notification.composant_id}`)
               .then(res => {
                 const composantName = res.data.data.composant.name_comp;
                 notification.composantName = composantName;
@@ -204,7 +204,7 @@ export default class Header extends Component {
         console.error('Error retrieving user data:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/notifprevunique')
+    axios.get('/backend/api/v1/notifprevunique')
       .then(res => {
         const notifprevunique = res.data.data.notifprevunique;
         this.setState({ notifprevunique });
@@ -213,7 +213,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/notifprevcompuniquetech')
+    axios.get('/backend/api/v1/notifprevcompuniquetech')
       .then(res => {
         const notifprevcompunique = res.data.data.notifprevcompunique;
         this.setState({ notifprevcompunique });
@@ -222,7 +222,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications for component:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/maintenance_prev')
+    axios.get('/backend/api/v1/maintenance_prev')
       .then(res => {
         const maintenance_prev = res.data.data.maintenance_prev;
         this.setState({ maintenance_prev });
@@ -231,7 +231,7 @@ export default class Header extends Component {
         console.error('Error retrieving preventive notifications by period:', error);
       });
   
-    axios.get('http://localhost:3001/api/v1/maintenance_prevcomp')
+    axios.get('/backend/api/v1/maintenance_prevcomp')
       .then(res => {
         const maintenance_prevcomp = res.data.data.maintenance_prevcomp;
         this.setState({ maintenance_prevcomp });
@@ -242,7 +242,7 @@ export default class Header extends Component {
   }
   
   loadEmployeeData() {
-    axios.get('http://localhost:3001/api/v1/notifempadm')
+    axios.get('/backend/api/v1/notifempadm')
       .then(res => {
         const notifemp = res.data.notifemp;
         this.setState({ notifemp });
@@ -285,7 +285,7 @@ export default class Header extends Component {
             {(isAdmin || isTechnician) && (
   <li className="nav-item d-none d-sm-inline-block">
     <button 
-      onClick={() => window.location.href = 'http://localhost:5173/addcurrent'} 
+      onClick={() => window.location.href = '/addcurrent'}
       className="nav-link wink-red" 
       style={{ 
         color: '#659c93db', 
@@ -315,7 +315,7 @@ export default class Header extends Component {
                 {isAdmin || isTechnician ? (
                   notifications.slice(-4).map(notification => (
                     <div key={notification.ref}>
-                      <a href={isAdmin ? "http://localhost:5173/reclamation" : "http://localhost:5173/reclamation_tech"} className="dropdown-item">
+                      <a href={isAdmin ? "/reclamation" : "/reclamation_tech"} className="dropdown-item">
                         <div className="media">
                           <img src="dist/img/claim2.png" alt="User Avatar" className="mr-2 img-circle" style={{ width: '15px', height: '15px' }} />
                           <div className="media-body">
@@ -365,7 +365,7 @@ export default class Header extends Component {
               <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 {isAdmin ? (
                   <>
-                    <a href="http://localhost:5173/maintenance_table" className="dropdown-item">
+                    <a href="/maintenance_table" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -377,7 +377,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr />
-                    <a href="http://localhost:5173/maintenance_table_periode" className="dropdown-item">
+                    <a href="/maintenance_table_periode" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -389,7 +389,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr></hr>
-                    <a href="http://localhost:5173/maintenance_comp_produit_table" className="dropdown-item">
+                    <a href="/maintenance_comp_produit_table" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -401,7 +401,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr />
-                    <a href="http://localhost:5173/maintenancecomp_periodetable" className="dropdown-item">
+                    <a href="/maintenancecomp_periodetable" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -428,7 +428,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr />
-                    <a href="http://localhost:5173/maintenanceperiodetech" className="dropdown-item">
+                    <a href="/maintenanceperiodetech" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -440,7 +440,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr></hr>
-                    <a href="http://localhost:5173/maintenance_comp_produit_table" className="dropdown-item">
+                    <a href="/maintenance_comp_produit_table" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">
@@ -452,7 +452,7 @@ export default class Header extends Component {
                       </div>
                     </a>
                     <hr />
-                    <a href="http://localhost:5173/maintenancecomp_periodetable" className="dropdown-item">
+                    <a href="/maintenancecomp_periodetable" className="dropdown-item">
                       <div className="media">
                         <div className="media-body">
                           <h3 className="dropdown-item-title">

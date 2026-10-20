@@ -23,7 +23,7 @@ function Dashemployee() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const res = await fetch('http://localhost:3001', { credentials: 'include' });
+        const res = await fetch('/backend', { credentials: 'include' });
         const data = await res.json();
 
         if (data.status === "Success") {
@@ -49,7 +49,7 @@ function Dashemployee() {
 
   const loadEmployeeData = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/notifempadm');
+      const res = await fetch('/backend/api/v1/notifempadm');
       const data = await res.json();
       setNotifEmp(data.notifemp);
       setMaintenancePrev(data.data.maintenancePrev);

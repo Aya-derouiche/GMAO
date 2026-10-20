@@ -19,9 +19,14 @@ moment.tz.setDefault('Africa/Tunis');
 const now = moment().toDate(); 
 now.setHours(now.getHours() + 1);  // Print the current time in ISO 8601 format
 
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 app.use(cors({
-    origin: ["http://localhost:5173"], // Replace "http://example.com" with your front-end URL
-    methods: ["POST", "GET","DELETE","PUT"], // Put methods in quotes separated by commas
+    origin: allowedOrigins,
+    methods: ["POST", "GET", "DELETE", "PUT", "PATCH", "OPTIONS"],
     credentials: true
 }));
 app.use(bodyParser.json());
@@ -52,12 +57,21 @@ app.get('/', verifyUser, (req, res) => {
 
 
 
-app.use("/uploads", express.static("uploads"));
+app.get("/health", async (_req, res) => {
+    try {
+        await db.checkConnection();
+        return res.status(200).json({ status: "ok", database: "connected" });
+    } catch (err) {
+        console.error("Database health check failed:", err.message);
+        return res.status(503).json({ status: "error", database: "unavailable" });
+    }
+});
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Set up multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads');
+        cb(null, path.join(__dirname, 'uploads'));
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -5035,16 +5049,23 @@ app.post('/api/v1/login', async (req, res) => {
 
         if (users.rows.length > 0) {
             // User exists, now compare passwords
-            const storedPassword = users.rows[0].password;
+            const storedPassword = String(users.rows[0].password ?? "");
+            const isBcryptHash = /^\$2[aby]\$\d{2}\$/.test(storedPassword);
+            const passwordMatches = isBcryptHash
+                ? await bcrypt.compare(String(password ?? ""), storedPassword)
+                : String(password ?? "") === storedPassword;
 
-            // Compare the provided password with the stored password
-            if (password === storedPassword) {
+            if (passwordMatches) {
                 // Passwords match, generate JWT token
                 const { id, name, role, login_count } = users.rows[0];
                 const token = jwt.sign({ id, name, role }, process.env.JWT_SECRET, { expiresIn: '6h' });
 
-                // Set JWT token as a secure HTTP-only cookie
-                res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
+                // Use secure cookies over HTTPS; local Docker development uses HTTP.
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    secure: process.env.COOKIE_SECURE === 'true',
+                    sameSite: 'strict'
+                });
 
                 // Update last_login time
                 const now = moment().toDate();  // Get the current time using moment
@@ -5069,7 +5090,9 @@ app.post('/api/v1/login', async (req, res) => {
     } catch (err) {
         // Handle database errors
         console.error("Database error:", err); // Log the error for debugging
-        return res.status(500).json({ message: "Database error", error: err.message }); // Return detailed error message
+        return res.status(503).json({
+            message: "Database unavailable. Check the PostgreSQL settings in server/.env.",
+        });
     }
 });
 
@@ -5827,7 +5850,7 @@ app.get('/api/v1/events', (req, res) => {
 
 
 
-  const port = process.env.PORT ; 
+  const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log(`server is up listening ${port}`);
 });

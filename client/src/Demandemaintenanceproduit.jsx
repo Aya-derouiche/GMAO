@@ -23,10 +23,10 @@ function Demandemaintenanceproduit() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001', { withCredentials: true });
+                const response = await axios.get('/backend', { withCredentials: true });
                 const userRole = response.data.role;
 
-                const notifResponse = await axios.get('http://localhost:3001/api/v1/notifprevunique');
+                const notifResponse = await axios.get('/backend/api/v1/notifprevunique');
                 const notifprevuniqueData = notifResponse.data.data.notifprevunique;
                 setNotifprevunique(notifprevuniqueData);
 
@@ -40,7 +40,7 @@ function Demandemaintenanceproduit() {
     }, []);
 
     const handleRowClick = (id) => {
-        window.location.href = `http://localhost:5173/equipements/${id}/updateequipproduit`;
+        window.location.href = `/equipements/${id}/updateequipproduit`;
     };
 
     const handleSort = (key) => {
@@ -122,7 +122,7 @@ function Demandemaintenanceproduit() {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                                        <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                                         <li className="breadcrumb-item active">maintenance préventive</li>
                                     </ol>
                                 </div>

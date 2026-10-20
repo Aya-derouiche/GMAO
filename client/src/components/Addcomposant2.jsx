@@ -57,9 +57,9 @@ function Addcomposant2() {
             try {
                 let unitsResponse;
                 if (type === 'Produit') {
-                    unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+                    unitsResponse = await axios.get("/backend/api/v1/unitproduit");
                 } else if (type === 'Periode') {
-                    unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+                    unitsResponse = await axios.get("/backend/api/v1/unitperiode");
                 }
                 setUnits(unitsResponse.data.data.unit);
             } catch (err) {
@@ -115,7 +115,7 @@ function Addcomposant2() {
             formData.append('description', description);
             if (fichier) formData.append('file', fichier);
 
-            const response = await axios.post("http://localhost:3001/api/v1/composant", formData, {
+            const response = await axios.post("/backend/api/v1/composant", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

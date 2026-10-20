@@ -19,9 +19,9 @@ const Updatemdp = () => {
   const fetchData = async () => {
     try {
       // Récupération des données de l'utilisateur depuis le serveur en utilisant l'identifiant de l'utilisateur
-      const response = await axios.get(`http://localhost:3001/api/v1/users/${id}`);
+      const response = await axios.get(`/backend/api/v1/users/${id}`);
       const userData = response.data.data.users;
-      const response2 = await axios.get(`http://localhost:3001/api/v1/employee/${id}`);
+      const response2 = await axios.get(`/backend/api/v1/employee/${id}`);
       const employeeData = response2.data.data.employee;
       setUserId(userData.userid);
       setPassword(userData.password);
@@ -45,7 +45,7 @@ const Updatemdp = () => {
   
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/v1/users/${id}`,
+        `/backend/api/v1/users/${id}`,
         {
           userid: userId,
           password: password,
@@ -67,7 +67,7 @@ const Updatemdp = () => {
   
   const handleLogout = () => {
     axios
-      .get("http://localhost:3001/api/v1/logout")
+      .get("/backend/api/v1/logout")
       .then((res) => {
         if (res.data.status === "Success") {
           navigate("/");

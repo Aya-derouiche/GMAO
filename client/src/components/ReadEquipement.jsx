@@ -5,6 +5,7 @@ import { useParams, Link, useNavigate  } from "react-router-dom";
 import axios from "axios";
 import AddProp_function2 from './AddProp_function2'; // Import the AddProp_function2 component
 import './ReadEquip.css';
+import { mediaUrl } from '../utils/mediaUrl';
 
 const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -27,13 +28,13 @@ const ReadEquipement = () => {
                 const equipementData = equipementResponse.data.data.equipement;
                 setEquipement(equipementData);
 
-                const propFunctionResponse = await axios.get(`http://localhost:3001/api/v1/equipement/${name}/prop_function`);
+                const propFunctionResponse = await axios.get(`/backend/api/v1/equipement/${name}/prop_function`);
                 if (propFunctionResponse.data.status === 'success' && propFunctionResponse.data.data.prop_function.length > 0) {
                     setPropFunctionInfo(propFunctionResponse.data.data.prop_function[0]);
                 } else {
                     setPropFunctionInfo(null);
                 }
-                const propEquipResponse = await axios.get(`http://localhost:3001/api/v1/equipement/${name}/prop_equip`);
+                const propEquipResponse = await axios.get(`/backend/api/v1/equipement/${name}/prop_equip`);
                 if (propEquipResponse.data.status === 'success' && propEquipResponse.data.data.prop_equip.length > 0) {
                     setPropEquipInfo(propEquipResponse.data.data.prop_equip[0]);
                 } else {
@@ -85,7 +86,7 @@ const ReadEquipement = () => {
                                                 {equipement.image && (
                                                     <img 
                                                         title={equipement.name} 
-                                                        src={`http://localhost:3001/${equipement.image}`} 
+                                                        src={mediaUrl(equipement.image)}
                                                         alt={equipement.name} 
                                                         className="card-img-top" 
                                                     />
@@ -134,7 +135,7 @@ const ReadEquipement = () => {
                                                 )}
                                                 &nbsp;
                                                 {!propEquipInfo && (
-                                                    <button className="btn btn-info" onClick={() => window.location.href = "http://localhost:5173/prop_equip"}>
+                                                    <button className="btn btn-info" onClick={() => window.location.href = "/prop_equip"}>
                                                         Ajouter propriété equipement
                                                     </button>
                                                 )}

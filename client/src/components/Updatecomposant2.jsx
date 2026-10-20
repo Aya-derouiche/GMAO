@@ -43,7 +43,7 @@ function Updatecomposant2() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const composantResponse = await axios.get(`http://localhost:3001/api/v1/composant/${id}`);
+                const composantResponse = await axios.get(`/backend/api/v1/composant/${id}`);
                 const composantData = composantResponse.data.data.composant;
                 setIdequip(composantData.id_equip);
                 setNameEquip(composantData.name_equip);
@@ -78,9 +78,9 @@ function Updatecomposant2() {
             try {
                 let unitsResponse;
                 if (type === 'Produit') {
-                    unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+                    unitsResponse = await axios.get("/backend/api/v1/unitproduit");
                 } else if (type === 'Periode') {
-                    unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+                    unitsResponse = await axios.get("/backend/api/v1/unitperiode");
                 }
                 setUnits(unitsResponse.data.data.unit);
             } catch (err) {
@@ -115,7 +115,7 @@ function Updatecomposant2() {
             formData.append('description', description);
             if (fichier) formData.append('file', fichier);
 
-            const response = await axios.put(`http://localhost:3001/api/v1/composant/${id}`, formData, {
+            const response = await axios.put(`/backend/api/v1/composant/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -155,7 +155,7 @@ function Updatecomposant2() {
             const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce composant?");
             if (!confirmDelete) return;
 
-            await axios.delete(`http://localhost:3001/api/v1/composant/${id}`);
+            await axios.delete(`/backend/api/v1/composant/${id}`);
             navigate("/equipment");
         } catch (err) {
             console.log(err);

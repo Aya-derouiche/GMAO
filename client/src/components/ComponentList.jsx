@@ -69,7 +69,7 @@ const ComponentList = () => {
 
     const handleMouseOver = async (name) => {
         try {
-          const response = await axios.get(`http://localhost:3001/api/v1/component/${name}/prop_function`);
+          const response = await axios.get(`/backend/api/v1/component/${name}/prop_function`);
           // Check if data is available
           if (response.data.status === 'success' && response.data.data.prop_function.length > 0) {
             // Set the prop function info from the first element of the array

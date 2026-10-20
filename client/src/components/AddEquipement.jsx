@@ -64,10 +64,10 @@ const AddEquipement = () => {
                 const response = await EquipementFinder.get("/");
                 setSecteurs(response.data.data.secteurs);
                 if (type === 'Produit') {
-                    const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+                    const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
                     setUnits(unitsResponse.data.data.unit);
                 } else if (type === 'Periode') {
-                    const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+                    const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
                     setUnits(unitsResponse.data.data.unit);
                 }
             } catch (err) {
@@ -148,7 +148,7 @@ const AddEquipement = () => {
 
         // Check if serial number already exists
         try {
-            const response = await axios.get(`http://localhost:3001/api/v1/check-serial-number_add?serial_number=${serial_number}`);
+            const response = await axios.get(`/backend/api/v1/check-serial-number_add?serial_number=${serial_number}`);
             // If serial number exists, handle it
             if (response.data.error) {
                 errors.serial_number = response.data.error;

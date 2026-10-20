@@ -23,8 +23,8 @@ function MaintenancecompPeriodetable() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001', { withCredentials: true });
-                const notifResponse = await axios.get('http://localhost:3001/api/v1/maintenance_prevcomp');
+                const response = await axios.get('/backend', { withCredentials: true });
+                const notifResponse = await axios.get('/backend/api/v1/maintenance_prevcomp');
                 const maintenancePrevData = notifResponse.data.data.maintenance_prevcomp;
                 setMaintenancePrevcomp(maintenancePrevData);
             } catch (error) {
@@ -37,7 +37,7 @@ function MaintenancecompPeriodetable() {
     }, []);
 
     const handleRowClick = (id) => {
-        window.location.href = `http://localhost:5173/equipment/${id}/Updatecompproduit`;
+        window.location.href = `/equipment/${id}/Updatecompproduit`;
     };
 
     const handleSort = (key) => {
@@ -104,7 +104,7 @@ function MaintenancecompPeriodetable() {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="http://localhost:5173/dash">Acceuil</a></li>
+                                        <li className="breadcrumb-item"><a href="/dash">Acceuil</a></li>
                                         <li className="breadcrumb-item active">Maintenance Préventive</li>
                                     </ol>
                                 </div>

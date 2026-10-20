@@ -96,7 +96,7 @@ const AddEmployee = ({ hideAddEmployee }) => {
             return;
         }
         try {
-            const response = await axios.get(`http://localhost:3001/api/v1/checkCinUniqueness_add?cin=${employee.cin}`);
+            const response = await axios.get(`/backend/api/v1/checkCinUniqueness_add?cin=${employee.cin}`);
             // If serial number exists, handle it
             if (response.data.error) {
                 errors.cin = response.data.error;

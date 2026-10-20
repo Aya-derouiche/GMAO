@@ -14,7 +14,7 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:3001/api/v1/login", values);
+            const response = await axios.post("/backend/api/v1/login", values);
             if (response.data.status === "success") {
                 navigate('/dash');
                 window.location.reload();
@@ -26,7 +26,11 @@ export default function Login() {
             }
         } catch (err) {
             console.error(err);
-            alert('Nom d\'utilisateur ou mot de passe incorrect');
+            const status = err.response?.status;
+            const message = status === 401
+                ? "Nom d'utilisateur ou mot de passe incorrect"
+                : err.response?.data?.message || "Le serveur ou la base de données est indisponible.";
+            alert(message);
         }
     };
 

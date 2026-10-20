@@ -5,12 +5,17 @@ node_modules/
 .env
 .env.*
 !.env.example
+!.env.compose.example
 
 # Build output
 dist/
 dist-ssr/
 build/
 coverage/
+
+# User-uploaded files
+**/Uploads/
+**/uploads/
 
 # Logs
 logs/

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EquipementsContext } from '../context/EquipementsContext';
 import axios from 'axios';
 import './EquipementList.css';
+import { mediaUrl } from '../utils/mediaUrl';
 
 const EquipementList = () => {
   const { equipements, setEquipements } = useContext(EquipementsContext);
@@ -39,7 +40,7 @@ const EquipementList = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const response = await axios.get('http://localhost:3001', { withCredentials: true });
+        const response = await axios.get('/backend', { withCredentials: true });
         setIsAdmin(response.data.role === 'admin');
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -99,7 +100,7 @@ const EquipementList = () => {
 
   const handleDelete = async (id) => {
     try {
-        const response = await axios.get(`http://localhost:3001/api/v1/equipement/${id}/references`);
+        const response = await axios.get(`/backend/api/v1/equipement/${id}/references`);
 
         if (response.data.hasReferences) {
             window.alert("Cette machine a d'autres relations. Pour la supprimer, vous devez d'abord supprimer toutes ses relations.");
@@ -146,7 +147,7 @@ const EquipementList = () => {
 
   const handleMouseOver = async (name) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/v1/equipement/${name}/prop_function`);
+      const response = await axios.get(`/backend/api/v1/equipement/${name}/prop_function`);
       if (response.data.status === 'success' && response.data.data.prop_function.length > 0) {
         setPropFunctionInfo(response.data.data.prop_function[0]);
       } else {
@@ -184,7 +185,7 @@ const EquipementList = () => {
           
             {isAdmin && (
               <div className="col-sm-6 text-center">
-                <button className="btn btn-info" onClick={() => window.location.href = "http://localhost:5173/addequipment"}>
+                <button className="btn btn-info" onClick={() => window.location.href = "/addequipment"}>
                   <i className="fas fa-plus"></i>
                 </button>
                 <button className="btn btn-danger" onClick={handleDeleteMultiple}>
@@ -288,7 +289,7 @@ const EquipementList = () => {
                       {equipement.image === null || equipement.image === "" || equipement.image === "null" ? (
                         <span>Aucune image</span>
                       ) : (
-                        <img src={`http://localhost:3001/${equipement.image}`} alt={equipement.name} className="equipement-image" />
+                        <img src={mediaUrl(equipement.image)} alt={equipement.name} className="equipement-image" />
                       )}
                     </td>
                     {isAdmin && (

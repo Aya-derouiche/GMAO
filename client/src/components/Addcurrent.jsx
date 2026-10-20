@@ -44,10 +44,10 @@ const Addcurrent = () => {
       try {
         const equipementData = {}; // Add appropriate data or logic to get equipementData if needed.
         if (equipementData.type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (equipementData.type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -61,7 +61,7 @@ const Addcurrent = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const response = await axios.get('http://localhost:3001', { withCredentials: true });
+        const response = await axios.get('/backend', { withCredentials: true });
         setIsAdmin(response.data.role === 'admin');
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -128,7 +128,7 @@ const Addcurrent = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/v1/equipement/${id}/references`);
+      const response = await axios.get(`/backend/api/v1/equipement/${id}/references`);
 
       let confirmMessage;
       if (response.data.hasReferences) {
@@ -182,7 +182,7 @@ const Addcurrent = () => {
 
   const handleMouseOver = async (name) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/v1/equipement/${name}/prop_function`);
+      const response = await axios.get(`/backend/api/v1/equipement/${name}/prop_function`);
       if (response.data.status === 'success' && response.data.data.prop_function.length > 0) {
         setPropFunctionInfo(response.data.data.prop_function[0]);
       } else {
@@ -208,11 +208,11 @@ const Addcurrent = () => {
   
       try {
           // Update the equipment values
-          await axios.put('http://localhost:3001/api/v1/equipement_current', { updates });
+          await axios.put('/backend/api/v1/equipement_current', { updates });
           alert('Values updated successfully!');
   
           // Fetch notifications
-          const response = await axios.get('http://localhost:3001/api/v1/notifications_prev');
+          const response = await axios.get('/backend/api/v1/notifications_prev');
           console.log('Notifications:', response.data); // Handle the response data as needed
   
           // For example, you could display the notifications in the UI
@@ -256,7 +256,7 @@ const Addcurrent = () => {
                   </div>
                   {isAdmin && (
                     <div className="col-sm-6 text-center">
-                      <button className="btn btn-info" onClick={() => window.location.href = "http://localhost:5173/addequipment"}>
+                      <button className="btn btn-info" onClick={() => window.location.href = "/addequipment"}>
                         <i className="fas fa-plus"></i>
                       </button>
                       <button className="btn btn-danger" onClick={handleDeleteMultiple}>

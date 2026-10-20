@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { mediaUrl } from '../utils/mediaUrl';
 
 const Updatenomlogo = () => {
   const { id } = useParams();
@@ -16,11 +17,11 @@ const Updatenomlogo = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/v1/nomlogo/1`);
+        const response = await axios.get(`/backend/api/v1/nomlogo/1`);
         const nomlogoData = response.data.data.nomlogo;
         if (nomlogoData) {
           setName(nomlogoData.name || "");
-          setImagePreview(nomlogoData.image ? `http://localhost:3001/${nomlogoData.image}` : "");
+          setImagePreview(nomlogoData.image ? mediaUrl(nomlogoData.image) : "");
         }
       } catch (err) {
         console.error(err);
@@ -55,7 +56,7 @@ const Updatenomlogo = () => {
       formData.append("name", name);
       formData.append("image", image);
 
-      await axios.put(`http://localhost:3001/api/v1/nomlogo/1`, formData, {
+      await axios.put(`/backend/api/v1/nomlogo/1`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

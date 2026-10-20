@@ -30,7 +30,7 @@ function KanbanBoard() {
       // Vérifier si l'utilisateur est administrateur
       const checkAdmin = async () => {
         try {
-          const response = await axios.get('http://localhost:3001', { withCredentials: true });
+          const response = await axios.get('/backend', { withCredentials: true });
           setIsAdmin(response.data.role === 'admin');
           setIsTechnician(response.data.role === 'technician');
         } catch (error) {
@@ -110,7 +110,7 @@ function KanbanBoard() {
                 <p>Date de création : {formatDate(reclamation.creation_date)}</p>
                
                  {reclamation.state === 'En attente...' && !reclamation.affecter && (isAdmin || isTechnician) && (
-                    <a href={`http://localhost:5173/reclamation/Readreclamation/${reclamation.ref}`}>
+                    <a href={`/reclamation/Readreclamation/${reclamation.ref}`}>
                         <button className="btn btn-primary">Affecter</button>
                     </a>
                 )}

@@ -7,6 +7,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import './Updateequip.css';
 import { toast } from 'react-toastify';
+import { mediaUrl } from '../utils/mediaUrl';
 
 const UpdateEquipement = () => {
   const { id } = useParams();
@@ -60,7 +61,7 @@ const UpdateEquipement = () => {
   axios.defaults.withCredentials = true;
 
   useEffect(() => {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           setAuth(true);
@@ -123,10 +124,10 @@ const UpdateEquipement = () => {
         }
 
         if (equipementData.type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (equipementData.type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -142,10 +143,10 @@ const UpdateEquipement = () => {
         const response = await EquipementFinder.get("/");
         setSecteurs(response.data.data.secteurs);
         if (type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -159,7 +160,7 @@ const UpdateEquipement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const techniciensResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+        const techniciensResponse = await axios.get('/backend/api/v1/technicien/techid');
         setTechniciens(techniciensResponse.data.data.technicien);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -267,8 +268,8 @@ const UpdateEquipement = () => {
     setShowTraiterButton(true);
     try {
       const url = type === 'Produit'
-        ? `http://localhost:3001/api/v1/notifprevunique/${id}`
-        : `http://localhost:3001/api/v1/maintenance_prev/${id}`;
+        ? `/backend/api/v1/notifprevunique/${id}`
+        : `/backend/api/v1/maintenance_prev/${id}`;
 
       await axios.put(url, {
         technicien_id: selectedTechnician,
@@ -309,7 +310,7 @@ const UpdateEquipement = () => {
                             ) : (
                                 <div className="image-container">
                                     {image && (
-                                        <img src={`http://localhost:3001/${image}`} alt="Current" className="preview-image" />
+                                        <img src={mediaUrl(image)} alt="Current" className="preview-image" />
                                     )}
                                 </div>
                             )}

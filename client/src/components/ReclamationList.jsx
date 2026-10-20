@@ -42,7 +42,7 @@ const ReclamationList = () => {
     useEffect(() => {
         const checkUserRoles = async () => {
             try {
-                const response = await axios.get('http://localhost:3001', { withCredentials: true });
+                const response = await axios.get('/backend', { withCredentials: true });
                 const userRole = response.data.role;
                 setIsAdmin(userRole === 'admin');
                 setIsTechnician(userRole === 'technician');
@@ -307,7 +307,7 @@ const ReclamationList = () => {
                                                 <td>
     {reclamation.affecter ? 'Affectée' : (
         (isAdmin || isTechnician) && (
-            <a href={`http://localhost:5173/reclamation/Readreclamation/${reclamation.ref}`}>
+            <a href={`/reclamation/Readreclamation/${reclamation.ref}`}>
                 <button className="btn btn-outline-info">affectée</button>
             </a>
         )

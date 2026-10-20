@@ -5,6 +5,7 @@ import { EmployeesContext } from '../context/EmployeesContext';
 import axios from 'axios';
 import './EquipementList.css';
 import AddEmployee from "./AddEmployee";
+import { mediaUrl } from '../utils/mediaUrl';
 
 const EmployeeList = () => {
   const { employees, setEmployees } = useContext(EmployeesContext);
@@ -23,7 +24,7 @@ const EmployeeList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/v1/employeelist");
+        const response = await axios.get("/backend/api/v1/employeelist");
         setEmployees(response.data.data.employee);
         setSearchResults(response.data.data.employee);
       } catch (err) {
@@ -37,7 +38,7 @@ const EmployeeList = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const response = await axios.get('http://localhost:3001', { withCredentials: true });
+        const response = await axios.get('/backend', { withCredentials: true });
         setIsAdmin(response.data.role === 'admin');
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -175,7 +176,7 @@ const EmployeeList = () => {
                           {employee.documents === null || employee.documents === "" || employee.documents === "null" ? (
                             <span>No Document</span>
                           ) : (
-                            <a href={`http://localhost:3001/${employee.documents}`} target="_blank" rel="noopener noreferrer">
+                            <a href={mediaUrl(employee.documents)} target="_blank" rel="noopener noreferrer">
                               <i className="far fa-file"></i>
                             </a>
                           )}

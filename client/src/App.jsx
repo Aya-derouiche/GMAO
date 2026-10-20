@@ -86,7 +86,7 @@ function App() {
   axios.defaults.withCredentials = true;
 
   useEffect(() => {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           setAuth(true);
@@ -103,7 +103,7 @@ function App() {
   }, []);
 
   const handleLogout = () => {
-    axios.get('http://localhost:3001/api/v1/logout')
+    axios.get('/backend/api/v1/logout')
       .then((res) => {
         if (res.data.status === "Success") {
           window.location.reload();

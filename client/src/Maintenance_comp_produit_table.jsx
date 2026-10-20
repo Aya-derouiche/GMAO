@@ -24,7 +24,7 @@ function MaintenanceCompProduitTable() {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:3001/api/v1/notifprevcompuniquetech')
+        axios.get('/backend/api/v1/notifprevcompuniquetech')
             .then(res => {
                 const notifprevcompuniqueData = res.data.data.notifprevcompunique;
                 setNotifprevcompunique(notifprevcompuniqueData);
@@ -37,7 +37,7 @@ function MaintenanceCompProduitTable() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const techniciensResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+                const techniciensResponse = await axios.get('/backend/api/v1/technicien/techid');
                 setTechniciens(techniciensResponse.data.data.technicien);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -71,7 +71,7 @@ function MaintenanceCompProduitTable() {
     const handleSubmit = async (notificationId) => {
         const id = notificationId;
         try {
-            await axios.put(`http://localhost:3001/api/v1/notifprevcompunique/${id}`, {
+            await axios.put(`/backend/api/v1/notifprevcompunique/${id}`, {
                 technicien_id: selectedTechnician[notificationId],
             });
             toast.success('Cette maintenance a été affectée avec succès');
@@ -82,7 +82,7 @@ function MaintenanceCompProduitTable() {
     };
 
     const handleRowClick = (id) => {
-        window.location.href = `http://localhost:5173/equipment/${id}/Updatecompproduit`;
+        window.location.href = `/equipment/${id}/Updatecompproduit`;
     };
 
     const handleSort = (key) => {
@@ -163,7 +163,7 @@ function MaintenanceCompProduitTable() {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                                        <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                                         <li className="breadcrumb-item active">maintenance préventive</li>
                                     </ol>
                                 </div>

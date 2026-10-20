@@ -31,7 +31,7 @@ const AddPreventive = ({ hideAddEquipement }) => {
     const [planified_date, setPlanified_date] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:3001')
+        axios.get('/backend')
             .then(res => {
                 if (res.data.status === "Success") {
                     setAuth(true);
@@ -58,7 +58,7 @@ const AddPreventive = ({ hideAddEquipement }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:5173/api/v1/predictive");
+                const response = await axios.get("/backend/api/v1/predictive");
                 setEquipments(response.data.data.equipments);
                 setEmployees(response.data.data.employees);
             } catch (err) {
@@ -77,7 +77,7 @@ const AddPreventive = ({ hideAddEquipement }) => {
                     const selectedEquipment = equipments.find(equipment => equipment.id === equipement_id);
                     if (selectedEquipment) {
                         // If the selected equipment exists, fetch composants based on its name
-                        const response = await axios.get(`http://localhost:3001/api/v1/composant_equip/${selectedEquipment.name}`);
+                        const response = await axios.get(`/backend/api/v1/composant_equip/${selectedEquipment.name}`);
                         setComposants(response.data.data.composants);
                     }
                 }
@@ -94,7 +94,7 @@ const AddPreventive = ({ hideAddEquipement }) => {
     useEffect(() => {
         const fetchLastReclamationId = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/v1/preventive2');
+                const response = await axios.get('/backend/api/v1/preventive2');
                 if (response.data.status === "success") {
                     const lastId = response.data.data.lastId;
                     setRef(`REF${lastId + 1}`);
@@ -124,7 +124,7 @@ const AddPreventive = ({ hideAddEquipement }) => {
         try {
             const currentDate = new Date().toISOString();
             const datePanneToSend = datepanne ? datepanne : currentDate;
-            const response = await axios.post("http://localhost:5173/api/v1/predictive", {
+            const response = await axios.post("/backend/api/v1/predictive", {
                 ref,
                 equipement_id,
                 employee_id,

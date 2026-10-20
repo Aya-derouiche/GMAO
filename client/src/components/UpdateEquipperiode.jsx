@@ -8,6 +8,7 @@ import 'react-tabs/style/react-tabs.css';
 import './Updateequip.css';
 import { toast } from 'react-toastify';
 import Modal from 'react-modal';
+import { mediaUrl } from '../utils/mediaUrl';
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const UpdateEquipperiode = () => {
@@ -89,7 +90,7 @@ const UpdateEquipperiode = () => {
     }
   };
   useEffect(() => {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           setAuth(true);
@@ -160,10 +161,10 @@ const UpdateEquipperiode = () => {
         }
 
         if (equipementData.type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (equipementData.type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -179,10 +180,10 @@ const UpdateEquipperiode = () => {
         const response = await EquipementFinder.get("/");
         setSecteurs(response.data.data.secteurs);
         if (type === 'Produit') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitproduit");
+          const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
           setUnits(unitsResponse.data.data.unit);
         } else if (type === 'Periode') {
-          const unitsResponse = await axios.get("http://localhost:3001/api/v1/unitperiode");
+          const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
           setUnits(unitsResponse.data.data.unit);
         }
       } catch (err) {
@@ -196,7 +197,7 @@ const UpdateEquipperiode = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const techniciensResponse = await axios.get('http://localhost:3001/api/v1/technicien/techid');
+        const techniciensResponse = await axios.get('/backend/api/v1/technicien/techid');
         setTechniciens(techniciensResponse.data.data.technicien);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -209,7 +210,7 @@ const UpdateEquipperiode = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const notifprevsResponse = await axios.get('http://localhost:3001/api/v1/notifprev');
+        const notifprevsResponse = await axios.get('/backend/api/v1/notifprev');
         setNotifprevs(notifprevsResponse.data.data.notifprev);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -334,8 +335,8 @@ const UpdateEquipperiode = () => {
     setShowTraiterButton(true);
     try {
       const url = type === 'Produit'
-        ? `http://localhost:3001/api/v1/notifprevunique/${id}`
-        : `http://localhost:3001/api/v1/maintenance_prev/${id}`;
+        ? `/backend/api/v1/notifprevunique/${id}`
+        : `/backend/api/v1/maintenance_prev/${id}`;
 
       await axios.put(url, {
         technicien_id: selectedTechnician,
@@ -364,12 +365,12 @@ const UpdateEquipperiode = () => {
     setShowStates(true);
     setShowTraitAndAffectButtons(false);
     try {
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/maintenance_prev`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/maintenance_prev`);
       const reclamationData = reclamationResponse.data.data.maintenance_prev;
       const matchReclamation = reclamationData.find(maintenance_prev => maintenance_prev.id === id);
   
       if (matchReclamation) {
-        const statResponse = await axios.get(` http://localhost:3001/api/v1/maintenance_prevstate/${matchReclamation.id}`);
+        const statResponse = await axios.get(` /backend/api/v1/maintenance_prevstate/${matchReclamation.id}`);
         console.log(statResponse);
         const stat = statResponse.data.data.maintenance_prev[0]; // Accessing the first object in the array
         if (stat.state === 'En cours') {
@@ -390,28 +391,28 @@ const UpdateEquipperiode = () => {
   const handleEnCoursClick = async () => {
     try {
       // Mettre à jour l'état dans la table reclamation
-      await axios.put(`http://localhost:3001/api/v1/state/${id}`, {
+      await axios.put(`/backend/api/v1/state/${id}`, {
         equipement_id: id,
         state: 'En cours'
       });
   
       // Mettre à jour l'état dans la table notifprev si l'équipement_id est présent
-      const notifprevResponse = await axios.get(`http://localhost:3001/api/v1/notifprev`);
+      const notifprevResponse = await axios.get(`/backend/api/v1/notifprev`);
       const notifprevData = notifprevResponse.data.data.notifprev;
       const matchNotifPrevId = notifprevData.find(notifprev => notifprev.id === id);
       if (matchNotifPrevId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchNotifPrevId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchNotifPrevId.id}`, {
           id: matchNotifPrevId.id,
           state: 'En cours'
         });
       }
       
       // Mettre à jour l'état dans la table maintenance_prev si l'équipement_id est présent
-      const maintenancePrevResponse = await axios.get(`http://localhost:3001/api/v1/maintenance_prev`);
+      const maintenancePrevResponse = await axios.get(`/backend/api/v1/maintenance_prev`);
       const maintenancePrevData = maintenancePrevResponse.data.data.maintenance_prev;
       const matchMaintenancePrevId = maintenancePrevData.find(maintenancePrev => maintenancePrev.id === id);
       if (matchMaintenancePrevId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchMaintenancePrevId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchMaintenancePrevId.id}`, {
           id: matchMaintenancePrevId.id,
           state: 'En cours'
         });
@@ -419,11 +420,11 @@ const UpdateEquipperiode = () => {
       
   
       // Mettre à jour l'état dans la table reclamation si l'équipement_id est présent
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/reclamation`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/reclamation`);
       const reclamationData = reclamationResponse.data.data.reclamations;
       const matchReclamationId = reclamationData.find(reclamation => reclamation.equipement_id === id);
       if (matchReclamationId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchReclamationId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchReclamationId.id}`, {
           equipement_id: matchReclamationId.equipement_id,
           state: 'En cours'
         });
@@ -440,46 +441,46 @@ const UpdateEquipperiode = () => {
   
   const handleTermineClick = async () => {
     try {
-      await axios.put(`http://localhost:3001/api/v1/state/${id}`, {
+      await axios.put(`/backend/api/v1/state/${id}`, {
         equipement_id: id,
         state: 'Terminée'
       });
   
       // Mettre à jour l'état dans la table notifprev si l'équipement_id est présent
-      const notifprevResponse = await axios.get(`http://localhost:3001/api/v1/notifprev`);
+      const notifprevResponse = await axios.get(`/backend/api/v1/notifprev`);
       const notifprevData = notifprevResponse.data.data.notifprev;
       const matchNotifPrevId = notifprevData.find(notifprev => notifprev.id === id);
       if (matchNotifPrevId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchNotifPrevId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchNotifPrevId.id}`, {
           id: matchNotifPrevId.id,
           state: 'Terminée'
         });
       }
   
       // Mettre à jour l'état dans la table maintenance_prev si l'équipement_id est présent
-      const maintenancePrevResponse = await axios.get(`http://localhost:3001/api/v1/maintenance_prev`);
+      const maintenancePrevResponse = await axios.get(`/backend/api/v1/maintenance_prev`);
       const maintenancePrevData = maintenancePrevResponse.data.data.maintenance_prev;
       const matchMaintenancePrevId = maintenancePrevData.find(maintenancePrev => maintenancePrev.id === id);
       if (matchMaintenancePrevId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchMaintenancePrevId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchMaintenancePrevId.id}`, {
           id: matchMaintenancePrevId.id,
           state: 'Terminée'
         });
       }
   
       // Mettre à jour l'état dans la table reclamation si l'équipement_id est présent
-      const reclamationResponse = await axios.get(`http://localhost:3001/api/v1/reclamation`);
+      const reclamationResponse = await axios.get(`/backend/api/v1/reclamation`);
       const reclamationData = reclamationResponse.data.data.reclamations;
       const matchReclamationId = reclamationData.find(reclamation => reclamation.equipement_id === id);
       if (matchReclamationId) {
-        await axios.put(`http://localhost:3001/api/v1/state/${matchReclamationId.id}`, {
+        await axios.put(`/backend/api/v1/state/${matchReclamationId.id}`, {
           equipement_id: matchReclamationId.equipement_id,
           state: 'Terminée'
         });
       }
   
       toast.success('Votre intervention a été terminée avec succèes.');
-      window.location.href = 'http://localhost:5173/maintenance_table_periode';
+      window.location.href = '/maintenance_table_periode';
     } catch (error) {
       console.error('Error updating states:', error);
       toast.error('Une erreur est survenue lors de la mise à jour des états.');
@@ -509,7 +510,7 @@ const UpdateEquipperiode = () => {
                             ) : (
                                 <div className="image-container">
                                     {image && (
-                                        <img src={`http://localhost:3001/${image}`} alt="Current" className="preview-image" />
+                                        <img src={mediaUrl(image)} alt="Current" className="preview-image" />
                                     )}
                                 </div>
                             )}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { NavLink, Link, Navigate } from 'react-router-dom';
 import { FaPowerOff } from 'react-icons/fa';
+import { mediaUrl } from './utils/mediaUrl';
 import './Menu.css';
 
 export default class Menu extends Component {
@@ -28,7 +29,7 @@ export default class Menu extends Component {
   }
 
   checkAuth() {
-    axios.get('http://localhost:3001', { withCredentials: true })
+    axios.get('/backend', { withCredentials: true })
       .then(res => {
         if (res.data.status === "Success") {
           this.setState({
@@ -48,7 +49,7 @@ export default class Menu extends Component {
   }
 
   fetchCompanyDetails() {
-    axios.get('http://localhost:3001/api/v1/nomlogo')
+    axios.get('/backend/api/v1/nomlogo')
       .then(res => {
         if (res.data.status === "success" && res.data.results > 0) {
           this.setState({ nomlogo: res.data.data.nomlogo[0] });
@@ -60,7 +61,7 @@ export default class Menu extends Component {
   }
 
   fetchEquipments() {
-    axios.get("http://localhost:3001/api/v1/equipement")
+    axios.get("/backend/api/v1/equipement")
       .then(res => {
         if (res.data.status === "success") {
           this.setState({ equipements: res.data.data.equipement }, () => {
@@ -76,7 +77,7 @@ export default class Menu extends Component {
   fetchComposantsForEquipements() {
     const { equipements } = this.state;
     equipements.forEach(equipement => {
-      axios.get(`http://localhost:3001/api/v1/composant_equip/${equipement.name}`)
+      axios.get(`/backend/api/v1/composant_equip/${equipement.name}`)
         .then(res => {
           if (res.data.status === "success") {
             this.setState(prevState => ({
@@ -99,7 +100,7 @@ export default class Menu extends Component {
 
     if (!confirmLogout) return;
 
-    axios.get('http://localhost:3001/api/v1/logout')
+    axios.get('/backend/api/v1/logout')
       .then((res) => {
         if (res.data.status === "Success") {
           location.reload(true);
@@ -133,15 +134,15 @@ export default class Menu extends Component {
           {nomlogo && (
             <div className="brand-link">
               {isAdmin ? (
-                <a href="http://localhost:5173/updatenomlogo" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <a href="/updatenomlogo" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <>
-                    <img src={`http://localhost:3001/${nomlogo.image}`} alt="Company Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
+                    <img src={mediaUrl(nomlogo.image)} alt="Company Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
                     <span className="brand-text font-weight-light">{nomlogo.name}</span>
                   </>
                 </a>
               ) : (
                 <>
-                  <img src={`http://localhost:3001/${nomlogo.image}`} alt="Company Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
+                  <img src={mediaUrl(nomlogo.image)} alt="Company Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
                   <span className="brand-text font-weight-light">{nomlogo.name}</span>
                 </>
               )}
@@ -306,26 +307,26 @@ export default class Menu extends Component {
                   <>
                     <li className="nav-header">PLUS D'OPTIONS</li>
                     <li className="nav-item">
-                      <a href="http://localhost:5173/ajout_unité" className="nav-link">
+                      <a href="/ajout_unité" className="nav-link">
                         <i className="nav-icon far fa-circle text-danger" />
                         <p className="text">Ajout unité de mesure</p>
                       </a>
                     </li>
                     <li className="nav-item">
-                      <a href="http://localhost:5173/historique_maint" className="nav-link">
+                      <a href="/historique_maint" className="nav-link">
                         <i className="nav-icon far fa-circle text-warning" />
                         <p>Historique des maintenances machines</p>
                       </a>
                     </li>
                     <li className="nav-item">
-                      <a href="http://localhost:5173/historiquerec" className="nav-link">
+                      <a href="/historiquerec" className="nav-link">
                         <i className="nav-icon far fa-circle text-info" />
                         <p>Reclamation par employee</p>
                       </a>
                     </li>
 
                     <li className="nav-item">
-                      <a href="http://localhost:5173/historiquecomp" className="nav-link">
+                      <a href="/historiquecomp" className="nav-link">
                         <i className="nav-icon far fa-circle text-success" />
                         <p>historique des maintenances composants</p>
                       </a>

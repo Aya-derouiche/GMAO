@@ -13,7 +13,7 @@ function Ajout_unité() {
 
     const fetchUnitList = async () => {
         try {
-            const unitsResponse = await axios.get("http://localhost:3001/api/v1/unit");
+            const unitsResponse = await axios.get("/backend/api/v1/unit");
             setUnits(unitsResponse.data.data.unit);
         } catch (error) {
             console.error('Error fetching unit list:', error);
@@ -23,7 +23,7 @@ function Ajout_unité() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:3001/api/v1/unit", {
+            const response = await axios.post("/backend/api/v1/unit", {
                unit: unit // corrected the object key
             });
             addUnit(response.data.data.unit);

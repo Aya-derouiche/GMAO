@@ -25,11 +25,11 @@ function Maintenancetableperiode() {
         const fetchData = async () => {
             try {
                 // First fetch from notifications_prevperiode endpoint
-                const notifResponse = await axios.get('http://localhost:3001/api/v1/notifications_prevperiode', { withCredentials: true });
+                const notifResponse = await axios.get('/backend/api/v1/notifications_prevperiode', { withCredentials: true });
                 const notifData = notifResponse.data.data;
 
                 // Then fetch from maintenance_prev endpoint
-                const maintResponse = await axios.get('http://localhost:3001/api/v1/maintenance_prev', { withCredentials: true });
+                const maintResponse = await axios.get('/backend/api/v1/maintenance_prev', { withCredentials: true });
                 const maintenancePrevData = maintResponse.data.data.maintenance_prev;
 
                 setMaintenancePrev(maintenancePrevData);
@@ -43,7 +43,7 @@ function Maintenancetableperiode() {
     }, []);
 
     const handleRowClick = (id) => {
-        window.location.href = `http://localhost:5173/equipements/${id}/updateequipperiode`;
+        window.location.href = `/equipements/${id}/updateequipperiode`;
     };
 
     const handleSort = (key) => {
@@ -110,7 +110,7 @@ function Maintenancetableperiode() {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="http://localhost:5173/equipment">Equipement</a></li>
+                                        <li className="breadcrumb-item"><a href="/equipment">Equipement</a></li>
                                         <li className="breadcrumb-item active">maintenance préventive</li>
                                     </ol>
                                 </div>

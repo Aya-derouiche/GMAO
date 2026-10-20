@@ -23,7 +23,7 @@ function Dash() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const res = await fetch('http://localhost:3001', { credentials: 'include' });
+        const res = await fetch('/backend', { credentials: 'include' });
         const data = await res.json();
 
         if (data.status === "Success") {
@@ -50,7 +50,7 @@ function Dash() {
     if (userRole === 'technician') {
       setIsTechnician(true);
       try {
-        const res = await fetch('http://localhost:3001/api/v1/technicien/techid');
+        const res = await fetch('/backend/api/v1/technicien/techid');
         const data = await res.json();
         const technicians = data.data.technicien;
         const connectedTechnician = technicians.find(technician => technician.name === userName);
@@ -75,15 +75,15 @@ function Dash() {
 
   const loadTechnicianData = async (technicianId) => {
     try {
-      const notificationsRes = await fetch(`http://localhost:3001/api/v1/notifications/${technicianId}`);
+      const notificationsRes = await fetch(`/backend/api/v1/notifications/${technicianId}`);
       const notificationsData = await notificationsRes.json();
       setNotifications(notificationsData.data.notifications);
 
-      const notifPrevUniqueRes = await fetch(`http://localhost:3001/api/v1/notifprevuniquetech/${technicianId}`);
+      const notifPrevUniqueRes = await fetch(`/backend/api/v1/notifprevuniquetech/${technicianId}`);
       const notifPrevUniqueData = await notifPrevUniqueRes.json();
       setNotifPrevUnique(notifPrevUniqueData.data.notifprevunique);
 
-      const maintenancePrevRes = await fetch(`http://localhost:3001/api/v1/maintenance_prevtech/${technicianId}`);
+      const maintenancePrevRes = await fetch(`/backend/api/v1/maintenance_prevtech/${technicianId}`);
       const maintenancePrevData = await maintenancePrevRes.json();
       setMaintenancePrev(maintenancePrevData.data.maintenance_prev);
     } catch (error) {
@@ -93,23 +93,23 @@ function Dash() {
 
   const loadAdminData = async () => {
     try {
-      const notificationsRes = await fetch('http://localhost:3001/api/v1/notifications_admin');
+      const notificationsRes = await fetch('/backend/api/v1/notifications_admin');
       const notificationsData = await notificationsRes.json();
       setNotifications(notificationsData.results);
 
-      const notifPrevUniqueRes = await fetch('http://localhost:3001/api/v1/notifprevunique');
+      const notifPrevUniqueRes = await fetch('/backend/api/v1/notifprevunique');
       const notifPrevUniqueData = await notifPrevUniqueRes.json();
       setNotifPrevUnique(notifPrevUniqueData.data.notifprevunique);
 
-      const notifPrevCompUniqueRes = await fetch('http://localhost:3001/api/v1/notifprevcompuniquetech');
+      const notifPrevCompUniqueRes = await fetch('/backend/api/v1/notifprevcompuniquetech');
       const notifPrevCompUniqueData = await notifPrevCompUniqueRes.json();
       setNotifPrevCompUnique(notifPrevCompUniqueData.data.notifprevcompunique);
 
-      const maintenancePrevRes = await fetch('http://localhost:3001/api/v1/maintenance_prev');
+      const maintenancePrevRes = await fetch('/backend/api/v1/maintenance_prev');
       const maintenancePrevData = await maintenancePrevRes.json();
       setMaintenancePrev(maintenancePrevData.data.maintenance_prev);
 
-      const maintenancePrevCompRes = await fetch('http://localhost:3001/api/v1/maintenance_prevcomp');
+      const maintenancePrevCompRes = await fetch('/backend/api/v1/maintenance_prevcomp');
       const maintenancePrevCompData = await maintenancePrevCompRes.json();
       setMaintenancePrevComp(maintenancePrevCompData.data.maintenance_prevcomp);
     } catch (error) {
@@ -119,7 +119,7 @@ function Dash() {
 
   const loadEmployeeData = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/notifempadm');
+      const res = await fetch('/backend/api/v1/notifempadm');
       const data = await res.json();
       setNotifEmp(data.notifemp);
       setMaintenancePrev(data.data.maintenancePrev);
@@ -133,7 +133,7 @@ function Dash() {
   useEffect(() => {
     const fetchReminderMessage = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/v1/cron_reminder');
+        const res = await fetch('/backend/api/v1/cron_reminder');
         const data = await res.json();
         setReminderMessage(data.message);
         setShowMessageBox(true);
@@ -152,7 +152,7 @@ function Dash() {
   }, []);
 
   const handleClick = () => {
-    window.location.href = 'http://localhost:5173/maintenance_table';
+    window.location.href = '/maintenance_table';
   };
 
   return (
@@ -182,7 +182,7 @@ function Dash() {
                 <div className="icon">
                   <i className="fas fa-tools" style={{ color: "#17a2b8", fontSize: "45px" }}></i>
                 </div>
-                <Link to="http://localhost:5173/reclamation" className="small-box-footer bg-info">
+                <Link to="/reclamation" className="small-box-footer bg-info">
                   More info <i className="fas fa-arrow-circle-right"></i>
                 </Link>
               </div>
@@ -196,7 +196,7 @@ function Dash() {
                 <div className="icon">
                   <i className="fas fa-hourglass-end" style={{ color: "#BA3C2E", fontSize: "45px" }}></i>
                 </div>
-                <Link to="http://localhost:5173/maintenance_table" className="small-box-footer" style={{ backgroundColor: "#BA3C2E" }}>
+                <Link to="/maintenance_table" className="small-box-footer" style={{ backgroundColor: "#BA3C2E" }}>
                   More info <i className="fas fa-arrow-circle-right"></i>
                 </Link>
               </div>
@@ -210,7 +210,7 @@ function Dash() {
                 <div className="icon">
                   <i className="fas fa-exclamation-triangle" style={{ color: "#19A695", fontSize: "45px" }}></i>
                 </div>
-                <Link to="http://localhost:5173/maintenance_comp_produit_table" className="small-box-footer" style={{ backgroundColor: "#19A695" }}>
+                <Link to="/maintenance_comp_produit_table" className="small-box-footer" style={{ backgroundColor: "#19A695" }}>
                   More info <i className="fas fa-arrow-circle-right"></i>
                 </Link>
               </div>
@@ -228,7 +228,7 @@ function Dash() {
                   <div className="icon">
                     <i className="fas fa-bullhorn" style={{ color: "#BA3C2E", fontSize: "45px" }}></i>
                   </div>
-                  <Link to="http://localhost:5173/reclamation" className="small-box-footer" style={{ backgroundColor: "#BA3C2E" }}>
+                  <Link to="/reclamation" className="small-box-footer" style={{ backgroundColor: "#BA3C2E" }}>
                     More info <i className="fas fa-arrow-circle-right"></i>
                   </Link>
                 </div>
@@ -243,7 +243,7 @@ function Dash() {
                   <div className="icon">
                     <i className="fas fa-tag" style={{ color: "#19A695", fontSize: "45px" }}></i>
                   </div>
-                  <Link to="http://localhost:5173/kanban_board" className="small-box-footer" style={{ backgroundColor: "#19A695" }}>
+                  <Link to="/kanban_board" className="small-box-footer" style={{ backgroundColor: "#19A695" }}>
                     More info <i className="fas fa-arrow-circle-right"></i>
                   </Link>
                 </div>
@@ -257,7 +257,7 @@ function Dash() {
                   <div className="icon">
                   <i className="fa fa-cogs" style={{ color: "#17a2b8", fontSize: "45px" }}></i>
                                     </div>
-                  <Link to="http://localhost:5173/equipment" className="small-box-footer bg-info">
+                  <Link to="/equipment" className="small-box-footer bg-info">
                     More info <i className="fas fa-arrow-circle-right"></i>
                   </Link>
                 </div>
