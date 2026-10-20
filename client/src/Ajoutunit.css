@@ -1,0 +1,24 @@
+.scroll-box {
+    max-height: 300px; /* Adjust as needed */
+    overflow-y: auto;
+  }
+  
+  .cardajout {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    width: 50%; /* Ensure card fills the container */
+  }
+  
+  .cardajout-body {
+    overflow-y: auto; /* Allow card body to be scrollable */
+    max-height: 200px; /* Adjust as needed */
+  }
+  
+  .cardajout-body hr {
+    margin: 10px 0; /* Adjust spacing as needed */
+    border: 0;
+    border-top: 1px solid #ddd; /* Style of the line */
+  }
+  

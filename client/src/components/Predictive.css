@@ -1,0 +1,27 @@
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 16px;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 16px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
+}

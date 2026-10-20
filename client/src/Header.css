@@ -1,0 +1,12 @@
+@keyframes wink {
+    0% { color: red; }
+    50% { color: inherit; }
+    100% { color: red; }
+  }
+  
+  .wink-red {
+    animation-name: wink;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+  }
+  

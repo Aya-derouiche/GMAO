@@ -1,0 +1,46 @@
+.equipement-image.card {
+    text-align: center; /* Centrer l'image */
+}
+
+.equipement-image.card .card-img-top {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 100%; /* Modifier la largeur de l'image */
+    display: block;
+    margin: 0 auto; /* Centrer l'image horizontalement */
+}
+
+.card {
+    /* Ajouter des ombres pour créer l'effet "card" */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+/* Au survol de la souris, ajouter une ombre plus profonde */
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+/* Ajouter un peu de marge à l'intérieur du conteneur de la carte */
+.container {
+    padding: 2px 16px;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    border-radius: 5px; /* Coins arrondis de 5px */
+}
+
+/* Ajouter des coins arrondis au coin supérieur gauche et au coin supérieur droit de l'image */
+.img-container {
+    max-width: 300px; /* Taille maximale de l'image */
+}
+
+
+
+/* Centrer l'image */
+.img-container {
+    display: flex;
+    justify-content: center;
+}
