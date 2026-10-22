@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const fs = require("fs");
 const cors = require("cors");
 const db = require("./db");
 const multer = require("multer");
@@ -34,6 +35,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.json());
 
+const uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, "uploads");
+fs.mkdirSync(uploadsDir, { recursive: true });
+
 
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
@@ -66,12 +70,12 @@ app.get("/health", async (_req, res) => {
         return res.status(503).json({ status: "error", database: "unavailable" });
     }
 });
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(uploadsDir));
 
 // Set up multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, 'uploads'));
+        cb(null, uploadsDir);
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -80,7 +84,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Routes for equipment
 app.get("/api/v1/equipement", async (req, res) => {
@@ -5851,6 +5855,6 @@ app.get('/api/v1/events', (req, res) => {
 
 
   const port = process.env.PORT || 3001;
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
     console.log(`server is up listening ${port}`);
 });

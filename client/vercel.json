@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/backend",
+      "destination": "https://gmao-gh3y.onrender.com/"
+    },
+    {
+      "source": "/backend/:path*",
+      "destination": "https://gmao-gh3y.onrender.com/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
