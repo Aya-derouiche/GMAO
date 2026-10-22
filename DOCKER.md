@@ -41,6 +41,20 @@ Copiez le dépôt et les fichiers téléversés sur le serveur, créez `server/.
 
 L’application ne crée ni ne migre le schéma PostgreSQL automatiquement. Faites une sauvegarde de la base avant toute migration et préparez le schéma attendu séparément.
 
+## Stocker les fichiers téléversés sur Cloudinary (Render)
+
+Pour éviter d’utiliser le système de fichiers temporaire de Render, ajoutez ces variables dans les paramètres du service Render :
+
+```text
+UPLOAD_STORAGE=cloudinary
+CLOUDINARY_URL=<URL_API_CLOUDINARY>
+CLOUDINARY_FOLDER=gmao
+```
+
+La valeur `CLOUDINARY_URL` vient de la console Cloudinary. Vous pouvez à la place fournir `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` et `CLOUDINARY_API_SECRET`. Ne mettez aucun de ces secrets dans Vercel ou dans Git. Supprimez `UPLOAD_DIR` du service Render : ce chemin n’est plus utilisé avec Cloudinary. En développement local, sans ces variables, les fichiers restent stockés localement.
+
+Avant le déploiement, exécutez une fois `server/db/migrations/20261022_cloudinary_asset_urls.sql` dans l’éditeur SQL Neon afin que les colonnes d’images acceptent les URL Cloudinary. Pour migrer les anciens fichiers depuis `server/Uploads`, configurez temporairement les variables Cloudinary et `DATABASE_URL` dans `server/.env`, puis depuis `server` lancez `npm run migrate:uploads` pour un aperçu. Après vérification, lancez `npm run migrate:uploads -- --apply` pour transférer les fichiers référencés et mettre à jour leurs chemins dans Neon. Cette intégration envoie ensuite les nouveaux téléversements directement vers Cloudinary.
+
 ## Dépannage : serveur marqué `unhealthy`
 
 Si les journaux indiquent `password authentication failed for user "your_database_user"`, le fichier `server/.env` contient encore la valeur d’exemple. Remplacez `PGDATABASE`, `PGUSER` et `PGPASSWORD` par les paramètres de la base PostgreSQL existante. Ne partagez pas le mot de passe dans les journaux ou dans Git.

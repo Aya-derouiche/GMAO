@@ -5,7 +5,7 @@ CREATE TABLE equipement(
     model VARCHAR(50) NOT NULL,
     serial_number VARCHAR(100) NOT NULL,
    status VARCHAR(50) NOT NULL,
-   image VARCHAR(100),
+   image TEXT,
    description  TEXT,
    add_date  DATE DEFAULT CURRENT_DATE,
    warranty_expiration_date DATE,
@@ -284,7 +284,7 @@ ADD COLUMN deleted BOOLEAN DEFAULT FALSE;
 CREATE TABLE nomlogo(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-  image VARCHAR(100)
+  image TEXT
  
 );
 

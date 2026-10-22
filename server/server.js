@@ -1,10 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const fs = require("fs");
+const crypto = require("crypto");
 const cors = require("cors");
 const db = require("./db");
 const multer = require("multer");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
@@ -36,7 +38,35 @@ app.use(cookieParser());
 app.use(express.json());
 
 const uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, "uploads");
-fs.mkdirSync(uploadsDir, { recursive: true });
+const cloudinaryUrl = process.env.CLOUDINARY_URL?.trim();
+const cloudinaryCredentials = {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+};
+const hasCloudinaryCredentials = Object.values(cloudinaryCredentials).every(Boolean);
+const wantsCloudinary = process.env.UPLOAD_STORAGE === "cloudinary";
+const useCloudinary = Boolean(cloudinaryUrl || hasCloudinaryCredentials || wantsCloudinary);
+
+if (wantsCloudinary && !cloudinaryUrl && !hasCloudinaryCredentials) {
+    throw new Error("Cloudinary uploads are enabled but Cloudinary credentials are missing");
+}
+
+if (cloudinaryUrl && Object.values(cloudinaryCredentials).some(Boolean)) {
+    throw new Error("Configure Cloudinary with CLOUDINARY_URL or individual CLOUDINARY_* values, not both");
+}
+
+if (Object.values(cloudinaryCredentials).some(Boolean) && !hasCloudinaryCredentials) {
+    throw new Error("Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET together");
+}
+
+if (hasCloudinaryCredentials) {
+    cloudinary.config({ ...cloudinaryCredentials, secure: true });
+}
+
+if (!useCloudinary) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 
 const verifyUser = (req, res, next) => {
@@ -70,21 +100,59 @@ app.get("/health", async (_req, res) => {
         return res.status(503).json({ status: "error", database: "unavailable" });
     }
 });
-app.use("/uploads", express.static(uploadsDir));
+if (!useCloudinary) {
+    app.use("/uploads", express.static(uploadsDir));
+}
 
-// Set up multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir);
+// Upload directly to Cloudinary when configured; use local disk for development.
+const storage = useCloudinary ? {
+    _handleFile(_req, file, cb) {
+        const extension = path.extname(file.originalname).toLowerCase();
+        const publicId = `${Date.now()}-${crypto.randomUUID()}${extension}`;
+        let completed = false;
+        const complete = (error, info) => {
+            if (completed) return;
+            completed = true;
+            cb(error, info);
+        };
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: process.env.CLOUDINARY_FOLDER || "gmao",
+                public_id: publicId,
+                resource_type: "auto",
+                use_filename: false,
+                unique_filename: false,
+                overwrite: false,
+            },
+            (error, result) => {
+                if (error) return complete(error);
+                complete(null, {
+                    filename: result.public_id,
+                    path: result.secure_url,
+                    size: result.bytes,
+                    public_id: result.public_id,
+                    resource_type: result.resource_type,
+                });
+            }
+        );
+
+        file.stream.once("error", complete);
+        uploadStream.once("error", complete);
+        file.stream.pipe(uploadStream);
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    _removeFile(_req, file, cb) {
+        cloudinary.uploader.destroy(
+            file.public_id || file.filename,
+            { resource_type: file.resource_type || "image", type: "upload" },
+            (error) => cb(error)
+        );
+    },
+} : multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, uploadsDir),
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${crypto.randomUUID()}${path.extname(file.originalname).toLowerCase()}`),
 });
 
 const upload = multer({ storage: storage });
-
-app.use('/uploads', express.static(uploadsDir));
 
 // Routes for equipment
 app.get("/api/v1/equipement", async (req, res) => {

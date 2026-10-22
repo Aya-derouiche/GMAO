@@ -11,13 +11,12 @@ export function mediaUrl(filePath) {
     return rawPath;
   }
 
-  let normalizedPath = rawPath.replace(/\\/g, '/').replace(/^\/+/, '');
-  if (/^uploads\//i.test(normalizedPath)) {
-    normalizedPath = normalizedPath.replace(/^uploads/i, 'uploads');
-  } else {
-    normalizedPath = `uploads/${normalizedPath}`;
+  // Older rows may contain an absolute local path such as C:\...\uploads\file.png.
+  // New uploads in production are stored as absolute Cloudinary URLs above.
+  const filename = rawPath.replace(/\\/g, '/').split('/').filter(Boolean).pop();
+  if (!filename || filename === '.' || filename === '..') {
+    return '/image-placeholder.svg';
   }
 
-  const encodedPath = normalizedPath.split('/').map(encodeURIComponent).join('/');
-  return `${API_BASE_URL}/${encodedPath}`;
+  return `${API_BASE_URL}/uploads/${encodeURIComponent(filename)}`;
 }
