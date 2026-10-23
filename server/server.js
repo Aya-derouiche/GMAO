@@ -193,7 +193,8 @@ app.get("/api/v1/equipement/:id", async (req, res) => {
             "FROM equipement " +
             "LEFT JOIN secteur ON equipement.secteur_id = secteur.id " +
             "LEFT JOIN unit ON equipement.unit_id = unit.id " +
-            "WHERE equipement.id = $1 AND equipement.deleted = false AND secteur.deleted = false",
+            "WHERE equipement.id = $1 AND equipement.deleted = false " +
+            "AND (secteur.id IS NULL OR secteur.deleted = false)",
             [req.params.id]
         );
         res.status(200).json({
@@ -1487,7 +1488,7 @@ app.get("/api/v1/secteur", async (req, res) => {
             SELECT secteur.*, equipement.name AS equipement_name
             FROM secteur
             LEFT JOIN equipement ON secteur.equipement_id = equipement.id
-            WHERE secteur.deleted = false
+            WHERE COALESCE(secteur.deleted, false) = false
         `);
 
         const equipments = await db.query("SELECT id, name FROM equipement");
@@ -1535,10 +1536,16 @@ app.get("/api/v1/secteur/:id", async (req, res) => {
 
 app.post("/api/v1/secteur", async (req, res) => {
     try {
-        const { ref, lib, description } = req.body;
+        const { ref, lib, description, equipement_id } = req.body;
+        if (!ref?.trim() || !lib?.trim()) {
+            return res.status(400).json({
+                status: "error",
+                message: "La référence et le libellé sont obligatoires.",
+            });
+        }
         const results = await db.query(
-            "INSERT INTO secteur (ref, lib, description) VALUES ($1, $2, $3) RETURNING *",
-            [ref, lib, description]
+            "INSERT INTO secteur (ref, lib, description, equipement_id) VALUES ($1, $2, $3, $4) RETURNING *",
+            [ref.trim(), lib.trim(), description || null, equipement_id || null]
         );
         res.status(201).json({
             status: "success",

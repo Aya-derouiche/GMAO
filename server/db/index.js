@@ -25,6 +25,10 @@ if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET must be configured in production");
 }
 
+if (process.env.NODE_ENV === "production" && !databaseUrl) {
+  throw new Error("DATABASE_URL must be configured in production");
+}
+
 const pool = new Pool(databaseUrl ? { connectionString: databaseUrl } : {});
 pool.on("error", (error) => {
   console.error("Unexpected PostgreSQL pool error:", error.message);

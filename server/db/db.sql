@@ -60,7 +60,8 @@ CREATE TABLE secteur(
     ref VARCHAR(100) NOT NULL,
     lib VARCHAR(50) NOT NULL,
    description  TEXT,
-   equipement_id BIGINT NOT NULL REFERENCES equipement(id)
+   equipement_id BIGINT REFERENCES equipement(id),
+   deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 
