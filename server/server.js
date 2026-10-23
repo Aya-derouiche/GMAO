@@ -47,19 +47,35 @@ const cloudinaryCredentials = {
 const hasCloudinaryCredentials = Object.values(cloudinaryCredentials).every(Boolean);
 const wantsCloudinary = process.env.UPLOAD_STORAGE === "cloudinary";
 const useCloudinary = Boolean(cloudinaryUrl || hasCloudinaryCredentials);
+const allowLocalUploads = process.env.NODE_ENV !== "production" && !wantsCloudinary && !useCloudinary;
 
-if (wantsCloudinary && !useCloudinary) {
-    console.error("Cloudinary is requested but credentials are missing; uploads are using local storage. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
+if (!useCloudinary && !allowLocalUploads) {
+    console.error("Cloudinary uploads are required but credentials are missing. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
 } else if (!cloudinaryUrl && Object.values(cloudinaryCredentials).some(Boolean) && !hasCloudinaryCredentials) {
-    console.error("Cloudinary credentials are incomplete; uploads are using local storage. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
+    console.error("Cloudinary credentials are incomplete. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
 }
 
 if (!cloudinaryUrl && hasCloudinaryCredentials) {
     cloudinary.config({ ...cloudinaryCredentials, secure: true });
 }
 
-if (!useCloudinary) {
+if (allowLocalUploads) {
     fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+function uploadedFile(req, ...fieldNames) {
+    for (const fieldName of fieldNames) {
+        const file = req.files?.[fieldName]?.[0];
+        if (file) return file;
+    }
+    if (req.file && (!fieldNames.length || fieldNames.includes(req.file.fieldname))) {
+        return req.file;
+    }
+    return null;
+}
+
+function uploadedFileUrl(req, fieldNames, existingValue = null) {
+    return uploadedFile(req, ...fieldNames)?.path || existingValue || null;
 }
 
 
@@ -96,7 +112,12 @@ app.get("/health", async (_req, res) => {
             WHERE COALESCE(secteur.deleted, false) = false
             LIMIT 0
         `);
-        return res.status(200).json({ status: "ok", database: "connected", secteurSchema: "ready" });
+        return res.status(200).json({
+            status: "ok",
+            database: "connected",
+            secteurSchema: "ready",
+            uploadStorage: useCloudinary ? "cloudinary" : allowLocalUploads ? "local-development" : "not-configured",
+        });
     } catch (err) {
         console.error("Database/schema health check failed:", err.message);
         return res.status(503).json({
@@ -106,7 +127,7 @@ app.get("/health", async (_req, res) => {
         });
     }
 });
-if (!useCloudinary) {
+if (allowLocalUploads) {
     app.use("/uploads", express.static(uploadsDir));
 }
 
@@ -119,6 +140,7 @@ const storage = useCloudinary ? {
         const complete = (error, info) => {
             if (completed) return;
             completed = true;
+            if (error) error.isCloudinaryUploadError = true;
             cb(error, info);
         };
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -153,10 +175,19 @@ const storage = useCloudinary ? {
             (error) => cb(error)
         );
     },
-} : multer.diskStorage({
+} : allowLocalUploads ? multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, uploadsDir),
     filename: (_req, file, cb) => cb(null, `${Date.now()}-${crypto.randomUUID()}${path.extname(file.originalname).toLowerCase()}`),
-});
+}) : {
+    _handleFile(_req, _file, cb) {
+        const error = new Error("Cloudinary n'est pas configuré sur le serveur. L'upload est désactivé.");
+        error.code = "CLOUDINARY_CONFIG_MISSING";
+        cb(error);
+    },
+    _removeFile(_req, _file, cb) {
+        cb(null);
+    },
+};
 
 const upload = multer({ storage: storage });
 
@@ -256,9 +287,15 @@ app.get("/api/v1/equipement/equipementName/:name", async (req, res) => {
 
 
 // For inserting equipment data
-app.post("/api/v1/equipement", upload.fields([{ name: 'image' }, { name: 'file' }]), async (req, res) => {    try {
-        const imagePath = req.file ? req.file.path : null;
-        const fichierPath = req.file ? req.file.path : null;
+const equipmentUploadFields = [
+    { name: "image", maxCount: 1 },
+    { name: "file", maxCount: 1 },
+    { name: "fichier", maxCount: 1 },
+];
+
+app.post("/api/v1/equipement", upload.fields(equipmentUploadFields), async (req, res) => {    try {
+        const imagePath = uploadedFileUrl(req, ["image"]);
+        const fichierPath = uploadedFileUrl(req, ["file", "fichier"], req.body.fichier);
         const warrantyExpirationDate = req.body.warranty_expiration_date ? new Date(req.body.warranty_expiration_date) : null;
         const formattedWarrantyExpirationDate = warrantyExpirationDate ? warrantyExpirationDate.toISOString() : null;
 
@@ -594,16 +631,10 @@ app.put("/api/v1/equipement/:id", upload.fields([{ name: 'image' }, { name: 'fil
 });
 
 */
-app.put("/api/v1/equipement/:id", upload.fields([{ name: 'image' }, { name: 'file' }]), async (req, res) => {
+app.put("/api/v1/equipement/:id", upload.fields(equipmentUploadFields), async (req, res) => {
     try {
-        let imagePath = req.body.image;
-        if (req.files && req.files.image) {
-            imagePath = req.files.image[0].path;
-        }
-        let fichierPath = req.body.fichier;
-        if (req.files && req.files.file) {
-            fichierPath = req.files.file[0].path;
-        }
+        const imagePath = uploadedFileUrl(req, ["image"], req.body.image);
+        const fichierPath = uploadedFileUrl(req, ["file", "fichier"], req.body.fichier || req.body.file);
 
         // Fetch the current equipment data to get the current value
         const currentEquipment = await db.query(
@@ -5935,7 +5966,37 @@ app.get('/api/v1/events', (req, res) => {
 
 
 
-  const port = process.env.PORT || 3001;
+app.use((err, _req, res, next) => {
+    if (res.headersSent) return next(err);
+
+    if (err.code === "CLOUDINARY_CONFIG_MISSING") {
+        return res.status(503).json({
+            status: "error",
+            code: err.code,
+            message: "Le stockage Cloudinary n'est pas configuré sur le serveur.",
+        });
+    }
+
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({
+            status: "error",
+            message: "Le fichier envoyé est invalide ou dépasse la limite autorisée.",
+        });
+    }
+
+    if (err.isCloudinaryUploadError) {
+        console.error("Cloudinary upload failed:", err.message);
+        return res.status(502).json({
+            status: "error",
+            message: "Cloudinary n'a pas pu enregistrer le fichier. Vérifiez ses paramètres et réessayez.",
+        });
+    }
+
+    console.error("Unhandled request error:", err.message);
+    return res.status(500).json({ status: "error", message: "Internal server error" });
+});
+
+const port = process.env.PORT || 3001;
 app.listen(port, "0.0.0.0", () => {
     console.log(`server is up listening ${port}`);
 });
