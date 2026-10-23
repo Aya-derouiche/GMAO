@@ -35,6 +35,12 @@ const AddSecteur = ({ hideAddSecteur }) => {
                 lib: lib,
                 description: description,
             });
+            if (!response.data?.data?.secteur) {
+                const body = typeof response.data === "string"
+                    ? response.data.slice(0, 200)
+                    : JSON.stringify(response.data);
+                throw new Error(`Réponse API inattendue : ${body || "corps vide"}`);
+            }
             addSecteur(response.data.data.secteur);
             hideAddSecteur();
             clearForm();
@@ -44,7 +50,9 @@ const AddSecteur = ({ hideAddSecteur }) => {
             }, 1000);
         } catch (err) {
             console.error(err);
-            const status = err.response?.status ? ` (HTTP ${err.response.status})` : " (erreur réseau)";
+            const status = err.response?.status
+                ? ` (HTTP ${err.response.status})`
+                : err.isAxiosError ? " (erreur réseau)" : " (réponse API)";
             const message = err.response?.data?.message || err.message;
             toast.error(`Ajout du secteur impossible${status} : ${message}`);
         }

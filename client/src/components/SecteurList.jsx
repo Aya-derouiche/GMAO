@@ -28,13 +28,23 @@ const SecteurList = () => {
     const fetchData = async () => {
       try {
         const response = await SecteurFinder.get("/");
-        setSecteurs(response.data.data.secteurs);
-        setSearchResults(response.data.data.secteurs);
+        const rows = response.data?.data?.secteurs;
+        if (!Array.isArray(rows)) {
+          const body = typeof response.data === "string"
+            ? response.data.slice(0, 200)
+            : JSON.stringify(response.data);
+          throw new Error(`Réponse API inattendue : ${body || "corps vide"}`);
+        }
+        setSecteurs(rows);
+        setSearchResults(rows);
         setLoadError("");
       } catch (err) {
         console.error(err);
         const message = err.response?.data?.message || err.message || "Erreur inconnue";
-        setLoadError(`Chargement impossible (HTTP ${err.response?.status || "réseau"}) : ${message}`);
+        const failureType = err.response?.status
+          ? `HTTP ${err.response.status}`
+          : err.isAxiosError ? "réseau" : "réponse API";
+        setLoadError(`Chargement impossible (${failureType}) : ${message}`);
         toast.error("Impossible de charger les secteurs. Consultez le message affiché dans la page.");
       }
     };
