@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from 'axios';
 import SecteurFinder from '../apis/SecteurFinder';
+import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 
 import { SecteursContext } from '../context/SecteursContext';
@@ -22,14 +23,19 @@ const SecteurList = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTechnician, setIsTechnician] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
+  const [loadError, setLoadError] = useState("");
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await SecteurFinder.get("/");
         setSecteurs(response.data.data.secteurs);
         setSearchResults(response.data.data.secteurs);
+        setLoadError("");
       } catch (err) {
         console.error(err);
+        const message = err.response?.data?.message || err.message || "Erreur inconnue";
+        setLoadError(`Chargement impossible (HTTP ${err.response?.status || "réseau"}) : ${message}`);
+        toast.error("Impossible de charger les secteurs. Consultez le message affiché dans la page.");
       }
     };
 
@@ -194,6 +200,7 @@ const SecteurList = () => {
                 </tr>
               </thead>
               <tbody>
+                {loadError && <tr><td colSpan={isAdmin ? 5 : 3} role="alert">{loadError}</td></tr>}
                 {currentItems.map(secteur => (
                   <tr key={secteur.id}>
                    {isAdmin &&   <td>

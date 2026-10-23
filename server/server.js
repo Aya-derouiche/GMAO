@@ -46,21 +46,15 @@ const cloudinaryCredentials = {
 };
 const hasCloudinaryCredentials = Object.values(cloudinaryCredentials).every(Boolean);
 const wantsCloudinary = process.env.UPLOAD_STORAGE === "cloudinary";
-const useCloudinary = Boolean(cloudinaryUrl || hasCloudinaryCredentials || wantsCloudinary);
+const useCloudinary = Boolean(cloudinaryUrl || hasCloudinaryCredentials);
 
-if (wantsCloudinary && !cloudinaryUrl && !hasCloudinaryCredentials) {
-    throw new Error("Cloudinary uploads are enabled but Cloudinary credentials are missing");
+if (wantsCloudinary && !useCloudinary) {
+    console.error("Cloudinary is requested but credentials are missing; uploads are using local storage. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
+} else if (!cloudinaryUrl && Object.values(cloudinaryCredentials).some(Boolean) && !hasCloudinaryCredentials) {
+    console.error("Cloudinary credentials are incomplete; uploads are using local storage. Configure CLOUDINARY_URL or all three CLOUDINARY_* variables.");
 }
 
-if (cloudinaryUrl && Object.values(cloudinaryCredentials).some(Boolean)) {
-    throw new Error("Configure Cloudinary with CLOUDINARY_URL or individual CLOUDINARY_* values, not both");
-}
-
-if (Object.values(cloudinaryCredentials).some(Boolean) && !hasCloudinaryCredentials) {
-    throw new Error("Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET together");
-}
-
-if (hasCloudinaryCredentials) {
+if (!cloudinaryUrl && hasCloudinaryCredentials) {
     cloudinary.config({ ...cloudinaryCredentials, secure: true });
 }
 
@@ -94,10 +88,22 @@ app.get('/', verifyUser, (req, res) => {
 app.get("/health", async (_req, res) => {
     try {
         await db.checkConnection();
-        return res.status(200).json({ status: "ok", database: "connected" });
+        await db.query(`
+            SELECT secteur.id, secteur.ref, secteur.lib, secteur.description,
+                   secteur.equipement_id, secteur.deleted, equipement.name AS equipement_name
+            FROM public.secteur
+            LEFT JOIN public.equipement ON secteur.equipement_id = equipement.id
+            WHERE COALESCE(secteur.deleted, false) = false
+            LIMIT 0
+        `);
+        return res.status(200).json({ status: "ok", database: "connected", secteurSchema: "ready" });
     } catch (err) {
-        console.error("Database health check failed:", err.message);
-        return res.status(503).json({ status: "error", database: "unavailable" });
+        console.error("Database/schema health check failed:", err.message);
+        return res.status(503).json({
+            status: "error",
+            database: err.code === "42P01" || err.code === "42703" ? "connected" : "unavailable",
+            secteurSchema: "not_ready",
+        });
     }
 });
 if (!useCloudinary) {

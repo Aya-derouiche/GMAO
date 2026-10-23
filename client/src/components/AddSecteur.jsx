@@ -44,7 +44,9 @@ const AddSecteur = ({ hideAddSecteur }) => {
             }, 1000);
         } catch (err) {
             console.error(err);
-            toast.error("Une erreur s'est produite lors de l'ajout du secteur.");
+            const status = err.response?.status ? ` (HTTP ${err.response.status})` : " (erreur réseau)";
+            const message = err.response?.data?.message || err.message;
+            toast.error(`Ajout du secteur impossible${status} : ${message}`);
         }
     };
     
