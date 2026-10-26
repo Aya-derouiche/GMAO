@@ -27,7 +27,9 @@ const SecteurList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await SecteurFinder.get("/");
+        // Keep the endpoint slashless: Vercel's /backend proxy targets Render,
+        // while an unmatched trailing-slash URL can fall through to index.html.
+        const response = await SecteurFinder.get("");
         const rows = response.data?.data?.secteurs;
         if (!Array.isArray(rows)) {
           const body = typeof response.data === "string"

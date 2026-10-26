@@ -28,9 +28,13 @@ const Addcurrent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await EquipementFinder.get("/");
-        setEquipements(response.data.data.equipement);
-        setSearchResults(response.data.data.equipement);
+        const response = await EquipementFinder.get("");
+        const rows = response.data?.data?.equipement;
+        if (!Array.isArray(rows)) {
+          throw new Error("Réponse API équipement invalide (la liste est absente).");
+        }
+        setEquipements(rows);
+        setSearchResults(rows);
       } catch (err) {
         console.error(err);
       }

@@ -30,7 +30,7 @@ const AddSecteur = ({ hideAddSecteur }) => {
         }
 
         try {
-            const response = await SecteurFinder.post("/", {
+            const response = await SecteurFinder.post("", {
                 ref: ref,
                 lib: lib,
                 description: description,
