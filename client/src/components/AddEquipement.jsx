@@ -23,8 +23,10 @@ const AddEquipement = () => {
     const [cout_unit, setCout_unit] = useState(0);
     const [secteur_id, setSecteur_id] = useState("");
     const [secteurs, setSecteurs] = useState([]);
+    const [secteurLoadError, setSecteurLoadError] = useState("");
     const [unit_id, setUnit_id] = useState("");
     const [units, setUnits] = useState([]);
+    const [unitLoadError, setUnitLoadError] = useState("");
     const [type, setType] = useState("Produit"); // Default value for type
     const [cycle, setCycle] = useState("");
     const [showWarranty, setShowWarranty] = useState(false);
@@ -59,23 +61,50 @@ const AddEquipement = () => {
     }, [refresh]);
     
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await EquipementFinder.get("/");
-                setSecteurs(response.data.data.secteurs);
-                if (type === 'Produit') {
-                    const unitsResponse = await axios.get("/backend/api/v1/unitproduit");
-                    setUnits(unitsResponse.data.data.unit);
-                } else if (type === 'Periode') {
-                    const unitsResponse = await axios.get("/backend/api/v1/unitperiode");
-                    setUnits(unitsResponse.data.data.unit);
+        let active = true;
+        axios.get("/backend/api/v1/secteur")
+            .then((response) => {
+                const rows = response.data?.data?.secteurs;
+                if (!Array.isArray(rows)) {
+                    throw new Error("Réponse API secteurs invalide.");
                 }
-            } catch (err) {
-                console.log(err);
-            }
-        };
+                if (active) {
+                    setSecteurs(rows);
+                    setSecteurLoadError("");
+                }
+            })
+            .catch((error) => {
+                console.error("Impossible de charger les secteurs:", error);
+                if (active) setSecteurLoadError(error.response?.data?.message || error.message);
+            });
 
-        fetchData();
+        return () => { active = false; };
+    }, []);
+
+    useEffect(() => {
+        let active = true;
+        const unitsEndpoint = type === "Produit" ? "unitproduit" : "unitperiode";
+        axios.get(`/backend/api/v1/${unitsEndpoint}`)
+            .then((response) => {
+                const rows = response.data?.data?.unit;
+                if (!Array.isArray(rows)) {
+                    throw new Error("Réponse API unités invalide.");
+                }
+                if (active) {
+                    setUnits(rows);
+                    setUnit_id("");
+                    setUnitLoadError("");
+                }
+            })
+            .catch((error) => {
+                console.error("Impossible de charger les unités:", error);
+                if (active) {
+                    setUnits([]);
+                    setUnitLoadError(error.response?.data?.message || error.message);
+                }
+            });
+
+        return () => { active = false; };
     }, [type]);
     
     const handleImageChange = (e) => {
@@ -412,6 +441,7 @@ const AddEquipement = () => {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {secteurLoadError && <small className="text-danger">Chargement des secteurs impossible : {secteurLoadError}</small>}
                                                 <div className="invalid-feedback">{errors.secteur_id}</div>
                                             </div>
                                      
@@ -459,6 +489,7 @@ const AddEquipement = () => {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {unitLoadError && <small className="text-danger">Chargement des unités impossible : {unitLoadError}</small>}
                                                 <div className="invalid-feedback">{errors.unit_id}</div>
                                             </div>
                                      
