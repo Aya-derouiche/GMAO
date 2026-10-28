@@ -5,12 +5,12 @@ import axios from 'axios';
 import './Equipementadd.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { Navigate, Link  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 const AddEquipement = () => {
     const { addEquipements } = useContext(EquipementsContext);
-    const [refresh, setRefresh] = useState(false);
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
     const [model, setModel] = useState("");
@@ -53,13 +53,6 @@ const AddEquipement = () => {
      
     });
 
-    useEffect(() => {
-        if (refresh) {
-            window.location.reload();
-            setRefresh(false);
-        }
-    }, [refresh]);
-    
     useEffect(() => {
         let active = true;
         axios.get("/backend/api/v1/secteur")
@@ -201,7 +194,7 @@ const AddEquipement = () => {
             formData.append("model", model);
             formData.append("serial_number", serial_number);
             formData.append("status", status);
-            formData.append("image", image);
+            if (image) formData.append("image", image);
             formData.append("description", description);
             formData.append("warranty_expiration_date", warranty_expiration_date);
             formData.append("cost", cost);
@@ -225,12 +218,13 @@ const AddEquipement = () => {
 
             addEquipements(createdEquipment);
             clearForm();
-            setRefresh(true); 
-          Navigate('/equipment')
+            navigate("/equipment");
           
         } catch (err) {
             console.error("Impossible de créer l'équipement:", err);
-            window.alert(err.response?.data?.message || err.message || "Impossible de créer l'équipement.");
+            const message = err.response?.data?.message || err.message || "Impossible de créer l'équipement.";
+            const requestId = err.response?.data?.requestId;
+            window.alert(requestId ? `${message}\nIdentifiant à rechercher dans les logs Render : ${requestId}` : message);
         }
     };
     const handleDocumentChange = (e) => {

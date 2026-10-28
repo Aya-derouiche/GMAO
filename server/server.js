@@ -112,10 +112,24 @@ app.get("/health", async (_req, res) => {
             WHERE COALESCE(secteur.deleted, false) = false
             LIMIT 0
         `);
+        await db.query(`
+            SELECT e.id, e.name, e.location, e.model, e.serial_number, e.status,
+                   e.image, e.description, e.warranty_expiration_date, e.cost,
+                   e.secteur_id, e.type, e.cycle, e.cout_unit, e.unit_id,
+                   e.current_value, e.last_maint_value, e.last_maint_date,
+                   e.descriptionprev, e.cout_intervention, e.duree_inter,
+                   e.type_maint, e.date_debut, e.date_fin, e.fichier,
+                   e.description_inter, e.deleted
+            FROM public.equipement e
+            LEFT JOIN public.secteur s ON s.id = e.secteur_id
+            LEFT JOIN public.unit u ON u.id = e.unit_id
+            LIMIT 0
+        `);
         return res.status(200).json({
             status: "ok",
             database: "connected",
             secteurSchema: "ready",
+            equipmentSchema: "ready",
             uploadStorage: useCloudinary ? "cloudinary" : allowLocalUploads ? "local-development" : "not-configured",
         });
     } catch (err) {
@@ -124,6 +138,7 @@ app.get("/health", async (_req, res) => {
             status: "error",
             database: err.code === "42P01" || err.code === "42703" ? "connected" : "unavailable",
             secteurSchema: "not_ready",
+            equipmentSchema: "not_ready",
         });
     }
 });
@@ -293,43 +308,62 @@ const equipmentUploadFields = [
     { name: "fichier", maxCount: 1 },
 ];
 
-app.post("/api/v1/equipement", upload.fields(equipmentUploadFields), async (req, res) => {    try {
+app.post("/api/v1/equipement", upload.fields(equipmentUploadFields), async (req, res) => {
+    const requestId = crypto.randomUUID();
+    try {
+        const requiredFields = ["name", "location", "model", "serial_number", "status", "secteur_id", "type", "cycle"];
+        const missingFields = requiredFields.filter((field) => !String(req.body[field] ?? "").trim());
+        if (missingFields.length) {
+            return res.status(400).json({ status: "error", message: `Champs obligatoires manquants : ${missingFields.join(", ")}`, requestId });
+        }
+
+        const parseNumber = (value, field, required = false) => {
+            if (value == null || String(value).trim() === "") {
+                if (required) throw Object.assign(new Error(`${field} est obligatoire.`), { status: 400 });
+                return null;
+            }
+            const parsed = Number(value);
+            if (!Number.isFinite(parsed)) throw Object.assign(new Error(`${field} doit être un nombre valide.`), { status: 400 });
+            return parsed;
+        };
+        const parseDate = (value, field) => {
+            if (value == null || String(value).trim() === "") return null;
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) throw Object.assign(new Error(`${field} doit être une date valide.`), { status: 400 });
+            return parsed.toISOString();
+        };
+
         const imagePath = uploadedFileUrl(req, ["image"]);
         const fichierPath = uploadedFileUrl(req, ["file", "fichier"], req.body.fichier);
-        const warrantyExpirationDate = req.body.warranty_expiration_date ? new Date(req.body.warranty_expiration_date) : null;
-        const formattedWarrantyExpirationDate = warrantyExpirationDate ? warrantyExpirationDate.toISOString() : null;
-
-        // Utilisation de la date et de l'heure actuelles dans le fuseau horaire UTC
-        const lastMaintenanceDate = req.body.last_maint_date ? new Date(req.body.last_maint_date) : new Date();
-        lastMaintenanceDate.setUTCHours(lastMaintenanceDate.getUTCHours() + 1); // Ajoute une heure
-        const formattedLastMaintenanceDate = lastMaintenanceDate.toISOString();
+        const warrantyExpirationDate = parseDate(req.body.warranty_expiration_date, "Date d'expiration de garantie");
+        const formattedLastMaintenanceDate = parseDate(req.body.last_maint_date, "Date de dernière maintenance") || new Date().toISOString();
 
         const results = await db.query(
             "INSERT INTO equipement (name, location, model, serial_number, status, image, description, warranty_expiration_date, cost, secteur_id, type, cycle, cout_unit, unit_id, current_value, last_maint_value, last_maint_date, descriptionprev, cout_intervention, duree_inter, type_maint, date_debut, date_fin, fichier, description_inter) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) RETURNING *",
             [
-                req.body.name,
-                req.body.location,
-                req.body.model,
-                req.body.serial_number,
-                req.body.status,
+                req.body.name.trim(),
+                req.body.location.trim(),
+                req.body.model.trim(),
+                req.body.serial_number.trim(),
+                req.body.status.trim(),
                 imagePath,
-                req.body.description,
-                formattedWarrantyExpirationDate,
-                req.body.cost,
-                req.body.secteur_id,
-                req.body.type,
-                req.body.cycle,
-                req.body.cout_unit,
-                req.body.unit_id,
-                req.body.current_value,
-                req.body.last_maint_value,
+                req.body.description || null,
+                warrantyExpirationDate,
+                parseNumber(req.body.cost, "Coût"),
+                parseNumber(req.body.secteur_id, "Secteur", true),
+                req.body.type.trim(),
+                parseNumber(req.body.cycle, "Cycle", true),
+                parseNumber(req.body.cout_unit, "Coût unitaire"),
+                parseNumber(req.body.unit_id, "Unité"),
+                parseNumber(req.body.current_value, "Valeur actuelle"),
+                parseNumber(req.body.last_maint_value, "Dernière valeur de maintenance"),
                 formattedLastMaintenanceDate, // Utilisation de la date formatée
                 req.body.descriptionprev || null,
-                req.body.cout_intervention,
-                req.body.duree_inter,
-                req.body.type_maint,
-                req.body.date_debut,
-                req.body.date_fin,
+                parseNumber(req.body.cout_intervention, "Coût d'intervention"),
+                parseNumber(req.body.duree_inter, "Durée d'intervention"),
+                req.body.type_maint || null,
+                parseDate(req.body.date_debut, "Date de début"),
+                parseDate(req.body.date_fin, "Date de fin"),
                 fichierPath,
                 req.body.description_inter || null
             ]
@@ -338,14 +372,27 @@ app.post("/api/v1/equipement", upload.fields(equipmentUploadFields), async (req,
         res.status(201).json({
             status: "success",
             data: {
+                equipement: results.rows[0],
                 equipment: results.rows[0],
             },
         });
     } catch (err) {
-        console.log(err);
-        res.status(500).json({
+        console.error("Equipment creation failed:", {
+            requestId,
+            message: err.message,
+            code: err.code,
+            detail: err.detail,
+            constraint: err.constraint,
+            table: err.table,
+            column: err.column,
+            stack: err.stack,
+        });
+        const clientErrorCodes = new Set(["23502", "23503", "23505", "22P02", "22007", "22008"]);
+        const status = err.status || (clientErrorCodes.has(err.code) ? (err.code === "23505" ? 409 : 400) : 500);
+        res.status(status).json({
             status: "error",
-            message: "Internal server error",
+            message: status === 500 ? "Échec de la création de l'équipement. Consultez les logs Render avec l'identifiant fourni." : err.message,
+            requestId,
         });
     }
 });
