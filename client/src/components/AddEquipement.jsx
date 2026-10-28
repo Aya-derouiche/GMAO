@@ -215,19 +215,22 @@ const AddEquipement = () => {
             formData.append("last_maint_date", last_maint_date);
             formData.append("descriptionprev", descriptionprev);
             if (fichier) formData.append('file', fichier);
-            const response = await EquipementFinder.post("/", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            // An empty relative path keeps this request at /equipement without
+            // a trailing slash, so Vercel forwards it to the Render API route.
+            const response = await EquipementFinder.post("", formData);
+            const createdEquipment = response.data?.data?.equipement;
+            if (!createdEquipment) {
+                throw new Error(response.data?.message || "Réponse invalide du serveur après création.");
+            }
 
-            addEquipements(response.data.data.equipement);
+            addEquipements(createdEquipment);
             clearForm();
             setRefresh(true); 
           Navigate('/equipment')
           
         } catch (err) {
-            console.log(err);
+            console.error("Impossible de créer l'équipement:", err);
+            window.alert(err.response?.data?.message || err.message || "Impossible de créer l'équipement.");
         }
     };
     const handleDocumentChange = (e) => {
