@@ -6032,9 +6032,19 @@ app.use((err, _req, res, next) => {
     }
 
     if (err.isCloudinaryUploadError) {
-        console.error("Cloudinary upload failed:", err.message);
+        const requestId = crypto.randomUUID();
+        const providerMessage = err.error?.message || err.message;
+        const providerStatus = err.http_code || err.error?.http_code || null;
+        console.error("Cloudinary upload failed:", {
+            requestId,
+            message: providerMessage,
+            httpCode: providerStatus,
+            errorName: err.name || null,
+        });
         return res.status(502).json({
             status: "error",
+            requestId,
+            providerStatus,
             message: "Cloudinary n'a pas pu enregistrer le fichier. Vérifiez ses paramètres et réessayez.",
         });
     }

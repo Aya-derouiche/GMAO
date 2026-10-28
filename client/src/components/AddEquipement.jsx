@@ -167,6 +167,8 @@ const AddEquipement = () => {
             setErrors(errors);
             return;
         }
+        // Clear errors left by a previous submit attempt before sending the request.
+        setErrors({});
 
         // Check if serial number already exists
         try {
@@ -224,7 +226,12 @@ const AddEquipement = () => {
             console.error("Impossible de créer l'équipement:", err);
             const message = err.response?.data?.message || err.message || "Impossible de créer l'équipement.";
             const requestId = err.response?.data?.requestId;
-            window.alert(requestId ? `${message}\nIdentifiant à rechercher dans les logs Render : ${requestId}` : message);
+            const providerStatus = err.response?.data?.providerStatus;
+            const diagnostic = [
+                providerStatus ? `Code Cloudinary : ${providerStatus}` : "",
+                requestId ? `Identifiant à rechercher dans les logs Render : ${requestId}` : "",
+            ].filter(Boolean).join("\n");
+            window.alert(diagnostic ? `${message}\n${diagnostic}` : message);
         }
     };
     const handleDocumentChange = (e) => {
